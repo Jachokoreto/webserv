@@ -5,6 +5,8 @@ Logger::Logger(std::string context)
     this->_context = context;
 }
 
+Logger::~Logger() {}
+
 void Logger::log(std::string str)
 {
     std::cerr << this->_context << ": " << str << std::endl;

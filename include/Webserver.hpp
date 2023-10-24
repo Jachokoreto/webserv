@@ -10,6 +10,7 @@
 #include <cstring> // strerror
 #include <cerrno>  // errno
 #include <sstream> // stringstream
+#include <string>
 
 #include "Logger.hpp"
 
@@ -24,18 +25,20 @@
 class WebServer
 {
 public:
-	WebServer();
+	WebServer(std::string port, std::string hostname, std::string server);
 	~WebServer();
 
 	void start();
-	// void stop();
+	// void stop(); // no need to stop
 
 private:
-	int createSocket();
+	int createSocket(std::string port, std::string hostname);
 	void waitForRequest(void);
 	void handleRequest(int);
 
-	int _socket;
+	int _socket; // socket fd
+	Logger _logger;
+	WebServer();
 };
 
 #endif

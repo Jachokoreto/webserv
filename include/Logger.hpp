@@ -10,7 +10,7 @@ class Logger
 {
 public:
     Logger(std::string context);
-
+    ~Logger();
 
     void log(std::string str);
     void info(std::string str);
@@ -19,8 +19,6 @@ public:
 
 private:
     Logger();
-    ~Logger();
-
     std::string _context;
 };
 

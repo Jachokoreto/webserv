@@ -6,15 +6,16 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/23 16:06:07 by jatan             #+#    #+#             */
-/*   Updated: 2023/10/24 15:52:26 by jatan            ###   ########.fr       */
+/*   Updated: 2023/10/24 18:01:33 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Webserver.hpp"
 #include <stdexcept>
 
-WebServer::WebServer()
+WebServer::WebServer(std::string port, std::string hostname, std::string server) : _logger(Logger(server))
 {
+    createSocket(port, hostname);
 }
 
 WebServer::~WebServer()
@@ -22,7 +23,13 @@ WebServer::~WebServer()
 }
 
 /**
- * To start the server socket
+ * @brief Starts the web server and begins listening for incoming connections.
+ *
+ * This function initializes the server socket, binds it to the specified port,
+ * and begins listening for incoming connections. Once a connection is established,
+ * the server will create a new thread to handle the incoming request.
+ *
+ * @return void
  */
 void WebServer::start()
 {
@@ -31,27 +38,29 @@ void WebServer::start()
     int addrlen = sizeof(address);
     std::ostringstream ss;
 
-    createSocket();
-
     while (1)
     {
-        printf("\n+++++++ Waiting for new connection ++++++++\n\n");
+        // printf("\n+++++++ Waiting for new connection ++++++++\n\n");
+        _logger.log("Waiting for new connection...");
         if ((connectSocket = accept(this->_socket, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0)
         {
             perror("In accept");
             exit(EXIT_FAILURE);
         }
         ss << "connected on " << address.sin_port << std::endl;
-        logger::log("socket", ss.str());
-        handleRequest(connectSocket);
+        _logger.log(ss.str());
         ss.flush();
-
+        handleRequest(connectSocket);
         close(connectSocket);
     }
 }
 
-// To create the listening socket
-int WebServer::createSocket()
+/**
+ * @brief Creates a new socket for the web server to listen on.
+ *
+ * @return The file descriptor of the newly created socket, or -1 if an error occurred.
+ */
+int WebServer::createSocket(std::string port, std::string hostname)
 {
     struct addrinfo hints, *servinfo, *p;
     int rv, yes = 1;
@@ -66,7 +75,7 @@ int WebServer::createSocket()
     // This way is easily adapted to different network configurations and
     // protocols, and can handle errors and exceptions more gracefully.
     // * arg1: the host name, arg2: the port
-    if ((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0)
+    if ((rv = getaddrinfo(hostname.c_str(), port.c_str(), &hints, &servinfo)) != 0)
     {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
@@ -77,13 +86,13 @@ int WebServer::createSocket()
     {
         if ((this->_socket = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
         {
-            logger::warning("server: socket", strerror(errno));
+            _logger.warning(strerror(errno));
             continue;
         }
 
         if (setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
         {
-            logger::error("setsockopt", strerror(errno));
+            _logger.error(strerror(errno));
             // exit(1);
             throw std::runtime_error(strerror(errno));
         }
@@ -91,7 +100,7 @@ int WebServer::createSocket()
         if (bind(this->_socket, p->ai_addr, p->ai_addrlen) == -1)
         {
             close(this->_socket);
-            logger::warning("server: bind", strerror(errno));
+            _logger.warning(strerror(errno));
             continue;
         }
 
@@ -102,19 +111,24 @@ int WebServer::createSocket()
 
     if (p == NULL)
     {
-        logger::error("server: failed to bind", "");
+        _logger.error("failed to bind");
         exit(1);
     }
 
     if (listen(this->_socket, BACKLOG) == -1)
     {
         perror("listen");
-        logger::error("server: listen", strerror(errno));
+        _logger.error(strerror(errno));
         exit(1);
     }
     return (0);
 }
 
+/**
+ * @brief Handles an incoming request on the given socket file descriptor.
+ *
+ * @param socket_fd The file descriptor of the socket to handle the request on.
+ */
 void WebServer::handleRequest(int socket_fd)
 {
     char buffer[3000];
