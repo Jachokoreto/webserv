@@ -17,11 +17,6 @@
 #define PORT "8080"
 #define BACKLOG 10
 
-/**
- * This class represents the web server itself. It would typically contain
- * the main event loop that listens for incoming connections and dispatches
- * requests to the appropriate handler.
- */
 class WebServer
 {
 public:

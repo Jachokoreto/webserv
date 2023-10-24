@@ -6,13 +6,20 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/23 16:06:07 by jatan             #+#    #+#             */
-/*   Updated: 2023/10/24 18:01:33 by jatan            ###   ########.fr       */
+/*   Updated: 2023/10/24 18:48:58 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Webserver.hpp"
 #include <stdexcept>
 
+/**
+ * @brief Constructor for WebServer class.
+ *
+ * @param port The port number to listen on.
+ * @param hostname The hostname to bind to.
+ * @param server The name of the server.
+ */
 WebServer::WebServer(std::string port, std::string hostname, std::string server) : _logger(Logger(server))
 {
     createSocket(port, hostname);
@@ -36,7 +43,7 @@ void WebServer::start()
     int connectSocket;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
-    std::ostringstream ss;
+    std::stringstream ss;
 
     while (1)
     {
