@@ -1,21 +1,26 @@
 #include "Logger.hpp"
 
-void logger::log(std::string ctx, std::string str)
+Logger::Logger(std::string context)
 {
-    std::cerr << ctx << ": " << str << std::endl;
+    this->_context = context;
 }
 
-void logger::info(std::string ctx, std::string str)
+void Logger::log(std::string str)
 {
-    std::cerr << BLUE << ctx << ": " << str << RESET << std::endl;
+    std::cerr << this->_context << ": " << str << std::endl;
 }
 
-void logger::warning(std::string ctx, std::string str)
+void Logger::info(std::string str)
 {
-    std::cerr << YELLOW << ctx << ": " << str << RESET << std::endl;
+    std::cerr << BLUE << this->_context << ": " << str << RESET << std::endl;
 }
 
-void logger::error(std::string ctx, std::string str)
+void Logger::warning(std::string str)
 {
-    std::cerr << RED << ctx << ": " << str << RESET << std::endl;
+    std::cerr << YELLOW << this->_context << ": " << str << RESET << std::endl;
+}
+
+void Logger::error(std::string str)
+{
+    std::cerr << RED << this->_context << ": " << str << RESET << std::endl;
 }

@@ -6,14 +6,22 @@
 
 #include "colors.h"
 
-namespace logger
+class Logger
 {
+public:
+    Logger(std::string context);
 
-    void log(std::string ctx, std::string str);
-    void info(std::string ctx, std::string str);
-    void warning(std::string ctx, std::string str);
-    void error(std::string ctx, std::string str);
 
-} // namespace webs
+    void log(std::string str);
+    void info(std::string str);
+    void warning(std::string str);
+    void error(std::string str);
 
-#endif //__LOGGER_H__
+private:
+    Logger();
+    ~Logger();
+
+    std::string _context;
+};
+
+#endif
