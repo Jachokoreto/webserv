@@ -7,22 +7,33 @@ Logger::Logger(std::string context)
 
 Logger::~Logger() {}
 
+void Logger::output(std::string color, std::string str)
+{
+    time_t curr_time = time(NULL);
+    char buffer[9];
+
+    strftime(buffer, sizeof(buffer), "%X", localtime(&curr_time));
+
+    std::cerr
+        << color << buffer << "  " << this->_context << ": " << str << RESET << std::endl;
+}
+
 void Logger::log(std::string str)
 {
-    std::cerr << this->_context << ": " << str << std::endl;
+    output("", str);
 }
 
 void Logger::info(std::string str)
 {
-    std::cerr << BLUE << this->_context << ": " << str << RESET << std::endl;
+    output(BLUE, str);
 }
 
 void Logger::warning(std::string str)
 {
-    std::cerr << YELLOW << this->_context << ": " << str << RESET << std::endl;
+    output(YELLOW, str);
 }
 
 void Logger::error(std::string str)
 {
-    std::cerr << RED << this->_context << ": " << str << RESET << std::endl;
+    output(RED, str);
 }
