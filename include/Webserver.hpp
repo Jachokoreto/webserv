@@ -6,6 +6,8 @@
 #include <netdb.h>	// struct addrinfo, gai_strerror
 #include <unistd.h> // execve, dup, dup2, pipe, fork
 
+#include "Request.hpp"
+
 #include <iostream>
 #include <cstring> // strerror
 #include <cerrno>  // errno
