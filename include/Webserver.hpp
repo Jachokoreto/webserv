@@ -11,8 +11,12 @@
 #include <cerrno>  // errno
 #include <sstream> // stringstream
 #include <string>
+#include <stdexcept>
+#include <map>
+
 
 #include "Logger.hpp"
+#include "Connection.hpp"
 
 #define PORT "8080"
 #define BACKLOG 10
@@ -29,10 +33,13 @@ public:
 private:
 	int createSocket(std::string port, std::string hostname);
 	void waitForRequest(void);
-	void handleRequest(int);
+	void handleRequest(char *, int, fd_set&);
+	void acceptConnection(fd_set&, int& fdmax);
 
-	int _socket; // socket fd
+	int _listener; // socket fd
 	Logger _logger;
+	std::map<int, Connection> _connections;
+
 	WebServer();
 };
 

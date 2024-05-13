@@ -2,7 +2,7 @@
 
 int main(void)
 {
-    WebServer webserver;
-
+    WebServer webserver(PORT, "localhost", "Webserver");
+    
     webserver.start();
 }

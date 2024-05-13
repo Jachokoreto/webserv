@@ -6,12 +6,11 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/23 16:06:07 by jatan             #+#    #+#             */
-/*   Updated: 2023/10/24 18:48:58 by jatan            ###   ########.fr       */
+/*   Updated: 2024/04/24 22:53:16 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Webserver.hpp"
-#include <stdexcept>
 
 /**
  * @brief Constructor for WebServer class.
@@ -29,6 +28,32 @@ WebServer::~WebServer()
 {
 }
 
+void WebServer::acceptConnection(fd_set& master, int& fdmax) {
+    socklen_t addrlen;
+    struct sockaddr_storage remoteaddr; // client address
+    int newfd;                          // newly accept()ed socket descriptor
+
+
+     // handle new connections
+    addrlen = sizeof remoteaddr;
+    newfd = accept(_listener,
+                    (struct sockaddr *)&remoteaddr,
+                    &addrlen);
+    if (newfd == -1)
+    {
+        perror("accept");
+    }
+    else
+    {
+        FD_SET(newfd, &master); // add to master set
+        if (newfd > fdmax) {    // keep track of the max
+            fdmax = newfd;
+        }
+        _connections.insert(std::make_pair(newfd, Connection(newfd, &master)));
+        _logger.log("new connection on socket " + std::to_string(newfd));
+    }
+}
+
 /**
  * @brief Starts the web server and begins listening for incoming connections.
  *
@@ -40,26 +65,84 @@ WebServer::~WebServer()
  */
 void WebServer::start()
 {
-    int connectSocket;
-    struct sockaddr_in address;
-    int addrlen = sizeof(address);
+    // int connectSocket;
+    // struct sockaddr_in address;
     std::stringstream ss;
+    fd_set master;   // master file descriptor list
+    fd_set read_fds; // temp file descriptor list for select()
+    int fdmax;       // maximum file descriptor number
 
-    while (1)
+    // int listener;                       // listening socket descriptor
+
+    char buf[1024]; // buffer for client data
+    int nbytes;
+
+
+    int i;
+
+    FD_ZERO(&master); // clear the master and temp sets
+    FD_ZERO(&read_fds);
+
+    // add the listener to the master set
+    FD_SET(_listener, &master);
+
+    // keep track of the biggest file descriptor
+    fdmax = _listener; // so far, it's this one
+    int offset = -_listener - 2;
+
+    // main loop
+    for (;;)
     {
-        // printf("\n+++++++ Waiting for new connection ++++++++\n\n");
-        _logger.log("Waiting for new connection...");
-        if ((connectSocket = accept(this->_socket, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0)
+        read_fds = master; // copy it
+        if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1)
         {
-            perror("In accept");
-            exit(EXIT_FAILURE);
+            perror("select");
+            exit(4);
         }
-        ss << "connected on " << address.sin_port << std::endl;
-        _logger.log(ss.str());
-        ss.flush();
-        handleRequest(connectSocket);
-        close(connectSocket);
-    }
+
+        // run through the existing connections looking for data to read
+        for (i = 0; i <= fdmax; i++)
+        {
+            if (FD_ISSET(i, &read_fds))
+            { // we got one!!
+                if (i == _listener)
+                {
+                    // handle new connections
+                    acceptConnection(master, fdmax);
+                }
+                else
+                {
+                    // handle data from a client
+                    if ((nbytes = recv(i, buf, sizeof buf, 0)) <= 0)
+                    {
+                        // got error or connection closed by client
+                        if (nbytes == 0)
+                        {
+                            // connection closed
+                            _logger.error("selectserver: socket " + std::to_string(i) + " hung up");
+                        }
+                        else
+                        {
+                            perror("recv");
+                        }
+                        close(i);           // bye!
+                        _logger.error("closed on socket " + std::to_string(i));
+                        _connections.erase(i);
+                        FD_CLR(i, &master); // remove from master set
+                    }
+                    else
+                    {
+                        _connections[i].readData(buf);
+                        // we got some data from a client
+                        // pass the data to connection to handle the request
+                        // and send
+                    }
+                } // END handle data from client
+            }     // END got new incoming connection
+        }         // END looping through file descriptors
+    }             // END for(;;)--and you thought it would never end!
+
+    return;
 }
 
 /**
@@ -82,31 +165,35 @@ int WebServer::createSocket(std::string port, std::string hostname)
     // This way is easily adapted to different network configurations and
     // protocols, and can handle errors and exceptions more gracefully.
     // * arg1: the host name, arg2: the port
-    if ((rv = getaddrinfo(hostname.c_str(), port.c_str(), &hints, &servinfo)) != 0)
+    const char *hostname_c = hostname.c_str();
+    const char *port_c = port.c_str();
+    if ((rv = getaddrinfo(hostname_c, port_c, &hints, &servinfo)) != 0)
     {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }
+    // delete hostname_c;
+    // delete port_c;
 
     // loop through all the results and bind to the first we can
     for (p = servinfo; p != NULL; p = p->ai_next)
     {
-        if ((this->_socket = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
+        if ((_listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
         {
             _logger.warning(strerror(errno));
             continue;
         }
 
-        if (setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+        if (setsockopt(_listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
         {
             _logger.error(strerror(errno));
             // exit(1);
             throw std::runtime_error(strerror(errno));
         }
 
-        if (bind(this->_socket, p->ai_addr, p->ai_addrlen) == -1)
+        if (bind(_listener, p->ai_addr, p->ai_addrlen) == -1)
         {
-            close(this->_socket);
+            close(_listener);
             _logger.warning(strerror(errno));
             continue;
         }
@@ -122,28 +209,13 @@ int WebServer::createSocket(std::string port, std::string hostname)
         exit(1);
     }
 
-    if (listen(this->_socket, BACKLOG) == -1)
+    if (listen(_listener, BACKLOG) == -1)
     {
         perror("listen");
         _logger.error(strerror(errno));
         exit(1);
     }
+
+    _logger.log("Server started on port " + port);
     return (0);
 }
-
-/**
- * @brief Handles an incoming request on the given socket file descriptor.
- *
- * @param socket_fd The file descriptor of the socket to handle the request on.
- */
-void WebServer::handleRequest(int socket_fd)
-{
-    char buffer[3000];
-
-    std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
-
-    recv(socket_fd, buffer, 30000, 0);
-    printf("%s\n", buffer);
-    send(socket_fd, response.c_str(), response.length(), 0);
-    printf("------------------Response sent-------------------\n");
-};
