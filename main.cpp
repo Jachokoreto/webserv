@@ -1,8 +1,14 @@
 #include "Webserver.hpp"
+#include "ConfigParser.hpp"
 
 int main(void)
 {
-    WebServer webserver(PORT, "localhost", "Webserver");
+    // WebServer webserver(PORT, "localhost", "Webserver");
     
-    webserver.start();
+    // webserver.start();
+    ConfigParser configParser;
+
+    configParser.parseConfig("default.conf");
+    configParser.displayConfig();
+    
 }
