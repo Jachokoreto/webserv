@@ -34,3 +34,5 @@
 *.dSYM
 webserv
 obj
+
+.vscode/settings.json

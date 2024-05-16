@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/23 16:06:07 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/16 21:21:12 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/16 22:32:39 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,9 @@
  */
 Webserver::Webserver(std::vector<ServerBlock*>& server_blocks) :  _serverBlocks(server_blocks), _logger(Logger("Webserver"))
 {
-    // createSocket(port, hostname);
-    // _serverBlocks = server_blocks;
+
     for (std::vector<ServerBlock*>::iterator it = _serverBlocks.begin(); it != _serverBlocks.end(); it++)
     {
-        // this->_logger.log("ServerBlock: ");
-        // it->display();
         setupServerSocket(**it);
     }
 }
@@ -40,8 +37,6 @@ void Webserver::start() {
         configureSelect();
         int activity = select(_maxFd + 1, &_readFds, &_writeFds, NULL, NULL);
 
-        // std::cout << "Activity: " << activity << std::endl;
-        // std::cout << _maxFd << std::endl;
         if (activity < 0)
         {
             perror("select");
@@ -191,28 +186,3 @@ void Webserver::acceptNewConnection(int server_socket, ServerBlock* serverBlock)
         _connections.push_back(new Connection(client_socket, serverBlock));
     }
 }
-
-// void Webserver::handleRequest(int sock) {
-
-// }
-
-
-// bool Webserver::echoMessage(int sock)
-// {
-//     char buffer[BUFFER_SIZE];
-//     memset(buffer, 0, BUFFER_SIZE);
-//     ssize_t bytes_read = read(sock, buffer, BUFFER_SIZE - 1);
-
-//     if (bytes_read == -1)
-//     {
-//         perror("read");
-//         return false;
-//     }
-//     else if (bytes_read == 0)
-//     {
-//         return false; // Connection closed by client
-//     }
-
-//     send(sock, buffer, bytes_read, 0); // Echo back to the client
-//     return true;
-// }
