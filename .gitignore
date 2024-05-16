@@ -35,4 +35,6 @@
 webserv
 obj
 
-.vscode/settings.json
+
+# vscode
+.vscode

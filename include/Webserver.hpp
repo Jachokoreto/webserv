@@ -20,6 +20,12 @@
 #include <fcntl.h> // fcntl
 #include <sys/select.h> // select
 
+#include "Request.hpp"
+#include "Response.hpp"
+#include "StaticFileHandler.hpp"
+#include "APIHandler.hpp"
+#include "Router.hpp"
+
 #include <iostream>
 #include <cstring> // strerror
 #include <cerrno>  // errno
