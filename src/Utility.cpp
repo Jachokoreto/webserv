@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utility.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 22:45:19 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/15 22:45:39 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/17 02:19:03 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,4 +31,12 @@ std::vector<std::string> utility::splitStringByDelim(const std::string &str, con
 	}
 
 	return result;
+}
+
+bool utility::isDirectory(const std::string &path)
+{
+	struct stat statbuf;
+	if (stat(path.c_str(), &statbuf) != 0)
+		return false;
+	return S_ISDIR(statbuf.st_mode);
 }

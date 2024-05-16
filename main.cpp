@@ -1,7 +1,17 @@
 #include "Webserver.hpp"
 #include "ConfigParser.hpp"
+#include "AutoindexHandler.hpp"
 
-int main(void)
+void testAutoindex(void)
+{
+    Request req("GET / HTTP/1.1\r\nHost: localhost:8080\r\n\r\n");
+    Response res;
+    AutoindexHandler autoindexHandler;
+    autoindexHandler.handleRequest(req, res, "/Users/user/sidess/webserv/public");
+    std::cout << res.toString() << std::endl;
+}
+
+void testWebserver(void)
 {
     // WebServer webserver(PORT, "localhost", "Webserver");
     
@@ -17,5 +27,10 @@ int main(void)
 
     Webserver webserver(serverBlocks);
     webserver.start();
+}
+int main(void)
+{
+    testAutoindex();
+    // testWebserver();
     
 } 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 02:00:28 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/15 22:44:52 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/17 01:28:51 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ public:
 	void setUri(const std::string &uri);
 	const std::string getMethod() const;
 	const std::string getUri() const;
+	const std::string getRoute() const;
+	const std::string getResource() const;
 };
 
 #endif

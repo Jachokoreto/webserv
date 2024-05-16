@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 23:19:09 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/16 23:38:47 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/17 02:22:20 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,20 @@ const std::string Request::getUri() const
 const std::string Request::getMethod() const
 {
 	return this->_method;
+}
+
+const std::string Request::getRoute() const
+{
+	return this->_uri.substr(0, this->_uri.find('/', 1));
+}
+
+// Get the requested resource from the URI
+// ie. /path/to/resource -> /to/resource
+const std::string Request::getResource() const
+{
+	if (this->_uri.find('/', 1) == std::string::npos)
+		return "";
+	return this->_uri.substr(this->_uri.find('/', 1));
 }
 
 void Request::setUri(const std::string &uri)

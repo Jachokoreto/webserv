@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 16:42:28 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 00:32:17 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/17 02:15:02 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,11 @@ class Response : public HttpMessage
 {
 private:
 	int _statusCode;
-	std::string _contentType;
-	int _contentLength;
-	std::string _date;
-	std::string _server;
-	std::string _connection;
+	// std::string _contentType;
+	// int _contentLength;
+	// std::string _date;
+	// std::string _server;
+	// std::string _connection;
 	Logger _logger;
 
 public:

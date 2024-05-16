@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileHandler.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:58:26 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/16 23:57:01 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/17 02:15:59 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,10 +94,11 @@ StaticFileHandler::StaticFileHandler() {}
 
 StaticFileHandler::~StaticFileHandler() {}
 
-void StaticFileHandler::handleRequest(const Request &request, Response &response)
+void StaticFileHandler::handleRequest(const Request &request, Response &response, std::string root)
 {
 	(void)request;
 	(void)response;
+	(void)root;
 	// std::string decodedPath = urlDecode(request.getUri());
 	// std::string normalizedPath = normalizePath(decodedPath);
 	// std::string filePath = this->_rootDirectory + request.getUri();

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 01:51:31 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/16 23:21:15 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/17 01:38:43 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ class RequestHandler
 {
 public:
 	virtual ~RequestHandler(){};
-	virtual void handleRequest(const Request &request, Response &response) = 0;
+	virtual void handleRequest(const Request &request, Response &response, std::string root) = 0;
 };
 
 #endif

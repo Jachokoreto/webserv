@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 19:45:42 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/17 01:17:01 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 02:11:54 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,15 +24,17 @@ class Logger
 {
 public:
 	Logger(std::string context);
+	Logger(const Logger &src);
+	Logger &operator=(const Logger &src);
 	~Logger();
 
-	void log(std::string str);
-	void info(std::string str);
-	void warning(std::string str);
-	void error(std::string str);
+	void log(std::string str) const;
+	void info(std::string str) const;
+	void warning(std::string str) const;
+	void error(std::string str) const;
 
 private:
-	void output(std::string color, std::string str);
+	void output(std::string color, std::string str) const;
 	Logger();
 	std::string _context;
 };

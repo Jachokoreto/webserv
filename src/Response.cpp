@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/14 16:12:06 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 00:55:30 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/17 02:33:17 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ std::map<int, std::string> Response::statusMap;
 
 Response::Response() : _logger(Logger("Response"))
 {
+	_statusCode = 200;
 	statusMap[200] = "OK";
 	statusMap[404] = "Not Found";
 	statusMap[500] = "Internal Server Error";
@@ -48,6 +49,7 @@ std::string Response::toString() const
 
 	// Status line
 	responseStream << "HTTP/1.1 " << this->_statusCode << " " << Response::statusMap.at(this->_statusCode) << std::endl;
+
 
 	// header
 	for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); it++)
