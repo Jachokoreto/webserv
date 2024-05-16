@@ -1,41 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Response.hpp                                       :+:      :+:    :+:   */
+/*   Utility.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/12 16:42:28 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/15 23:25:17 by chenlee          ###   ########.fr       */
+/*   Created: 2024/05/15 22:42:52 by chenlee           #+#    #+#             */
+/*   Updated: 2024/05/15 22:47:18 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef RESPONSE_HPP
-#define RESPONSE_HPP
+#ifndef UTILITY_HPP
+#define UTILITY_HPP
 
 #include <string>
+#include <vector>
 #include <sstream>
 
-#include "HttpMessage.hpp"
-
-class Response : public HttpMessage
+namespace utility
 {
-private:
-	int _statusCode;
-	std::string _contentType;
-	int _contentLength;
-	std::string _date;
-	std::string _server;
-	std::string _connection;
-
-public:
-	Response();
-	~Response();
-
-	static const std::map<int, std::string> statusMap;
-	void setStatusCode(int status);
-	int getStatusCode() const;
-	std::string toString() const;
+	/**
+	 * Splits a given string into a vector of substrings based on delimiter (either space or newline).
+	 *
+	 * @param str The string to be split
+	 * @param delim The delimiter
+	 * @return A vector of substrings extracted from the input string.
+	 */
+	std::vector<std::string> splitStringByDelim(const std::string &str, const char delim);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 02:00:28 by chenlee           #+#    #+#             */
-/*   Updated: 2024/04/12 19:24:36 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/15 22:44:52 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <exception>
 
 #include "HttpMessage.hpp"
+#include "Utility.hpp"
 
 class Request : public HttpMessage
 {

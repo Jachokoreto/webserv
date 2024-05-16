@@ -7,6 +7,10 @@
 #include <unistd.h> // execve, dup, dup2, pipe, fork
 
 #include "Request.hpp"
+#include "Response.hpp"
+#include "StaticFileHandler.hpp"
+#include "APIHandler.hpp"
+#include "Router.hpp"
 
 #include <iostream>
 #include <cstring> // strerror

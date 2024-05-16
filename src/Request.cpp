@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 23:19:09 by chenlee           #+#    #+#             */
-/*   Updated: 2024/04/12 19:38:07 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/15 22:47:28 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,38 +34,10 @@ void Request::setMethod(const std::string &method)
 	this->_method = method;
 }
 
-/**
- * Splits a given string into a vector of substrings based on delimiter (either space or newline).
- *
- * @param str The string to be split
- * @param delim The delimiter
- * @return A vector of substrings extracted from the input string.
- */
-std::vector<std::string> splitStringByDelim(const std::string &str, const char delim)
-{
-	std::vector<std::string> result;
-	std::istringstream stream(str);
-
-	if (delim == '\n')
-	{
-		std::string line;
-		while (std::getline(stream, line))
-			result.push_back(line);
-	}
-	else if (delim == ' ')
-	{
-		std::string word;
-		while (stream >> word)
-			result.push_back(word);
-	}
-
-	return result;
-}
-
 Request::Request(const std::string &requestString)
 {
-	std::vector<std::string> split = splitStringByDelim(requestString, '\n');
-	std::vector<std::string> requestLine = splitStringByDelim(split[0], ' ');
+	std::vector<std::string> split = utility::splitStringByDelim(requestString, '\n');
+	std::vector<std::string> requestLine = utility::splitStringByDelim(split[0], ' ');
 	const std::string &method = requestLine[0];
 	if (std::find(Request::methodVector.begin(), Request::methodVector.end(), method) == Request::methodVector.end())
 		throw Request::NotAllowedException("Invalid method");
