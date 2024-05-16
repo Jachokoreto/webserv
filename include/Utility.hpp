@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 22:42:52 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/15 22:47:18 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/16 23:20:38 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,6 @@ namespace utility
 	 * @return A vector of substrings extracted from the input string.
 	 */
 	std::vector<std::string> splitStringByDelim(const std::string &str, const char delim);
-};
+}
 
 #endif

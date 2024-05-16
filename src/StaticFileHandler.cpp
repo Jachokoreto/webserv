@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:58:26 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/16 11:58:33 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/16 23:57:01 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,15 +90,17 @@ std::string urlDecode(const std::string &encoded)
 	return result;
 }
 
-StaticFileHandler::StaticFileHandler(){};
+StaticFileHandler::StaticFileHandler() {}
 
-StaticFileHandler::~StaticFileHandler(){};
+StaticFileHandler::~StaticFileHandler() {}
 
 void StaticFileHandler::handleRequest(const Request &request, Response &response)
 {
+	(void)request;
+	(void)response;
 	// std::string decodedPath = urlDecode(request.getUri());
 	// std::string normalizedPath = normalizePath(decodedPath);
-	std::string filePath = this->_rootDirectory + request.getUri();
+	// std::string filePath = this->_rootDirectory + request.getUri();
 
 	// struct stat path_stat;
 	// stat(filePath.c_str(), &path_stat);
@@ -124,25 +126,20 @@ void StaticFileHandler::handleRequest(const Request &request, Response &response
 	// 	}
 	// }
 
-	std::cout << filePath << std::endl;
+	// std::cout << filePath << std::endl;
 
-	std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary);
-	if (!file)
-	{
-		response.setStatusCode(404);
-		return;
-	}
+	// std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary);
+	// if (!file)
+	// {
+	// 	response.setStatusCode(404);
+	// 	return;
+	// }
 
 	// Read the whole file into a string
-	std::string content(std::istreambuf_iterator<char>(file), (std::istreambuf_iterator<char>()));
-	file.close();
+	// std::string content(std::istreambuf_iterator<char>(file), (std::istreambuf_iterator<char>()));
+	// file.close();
 
-	response.setStatusCode(200);
-	response.setBody(content);
-	response.addHeader("Content-Type", getMimeType(filePath));
-}
-
-std::string StaticFileHandler::getRootDirectory()
-{
-	return this->_rootDirectory;
+	// response.setStatusCode(200);
+	// response.setBody(content);
+	// response.addHeader("Content-Type", getMimeType(filePath));
 }

@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 19:45:42 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/16 19:46:14 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 01:17:01 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include <string>
 #include <iostream>
-#include <chrono>
+// #include <chrono>
 #include <ctime>
 
 #include "colors.h"
@@ -23,21 +23,18 @@
 class Logger
 {
 public:
-    Logger(std::string context);
-    Logger(const Logger &src);
-    Logger &operator=(const Logger &rhs);
-    ~Logger();
+	Logger(std::string context);
+	~Logger();
 
-    void log(std::string str) const;
-    void info(std::string str) const;
-    void warning(std::string str) const;
-    void error(std::string str) const;
+	void log(std::string str);
+	void info(std::string str);
+	void warning(std::string str);
+	void error(std::string str);
 
 private:
-    void output(std::string color, std::string str) const;
-    Logger();
-    std::string _context;
-    static int _loggerCount;
+	void output(std::string color, std::string str);
+	Logger();
+	std::string _context;
 };
 
 std::ostream &			operator<<( std::ostream & o, Logger const & i );
