@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ServerBlock.hpp                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jatan <jatan@student.4ss2kl.edu.my>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/05/16 19:45:54 by jatan             #+#    #+#             */
+/*   Updated: 2024/05/16 21:19:42 by jatan            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef SERVER_BLOCK_HPP
 # define SERVER_BLOCK_HPP
 
@@ -25,9 +37,13 @@ public:
     string index;
     vector<Location> locations;
 
+    ServerBlock();
+
     void display() const;
     int getPort() const;
     string getServerName() const;
+
+    string handleRequest(string request);
 };
 
 #endif /* ****************************************************** SERVER_BLOCK_HPP */

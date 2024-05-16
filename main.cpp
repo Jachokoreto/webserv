@@ -7,8 +7,15 @@ int main(void)
     
     // webserver.start();
     ConfigParser configParser;
+    std::vector<ServerBlock*> serverBlocks;
 
-    configParser.parseConfig("default.conf");
-    configParser.displayConfig();
+    configParser.parseConfig("default.conf", serverBlocks);
+    for (std::vector<ServerBlock*>::iterator it = serverBlocks.begin(); it != serverBlocks.end(); it++)
+    {
+        configParser.displayConfig(**it);
+    }
+
+    Webserver webserver(serverBlocks);
+    webserver.start();
     
-}
+} 

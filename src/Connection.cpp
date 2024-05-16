@@ -3,37 +3,31 @@
 int Connection::_connectionCount = 0;
 
 /*
-** ------------------------------- CONSTRUCTOR --------------------------------
+** ------------------------- CONSTRUCTOR & DESTRUCTOR --------------------------
 */
 
-Connection::Connection(int fd, fd_set *master): _fd(fd), _master(master), _requestString(""), _logger(Logger("Connection"))
+Connection::Connection(int fd, ServerBlock* serverBlock): fd(fd), _serverBlock(serverBlock), _logger(Logger("Connection"))
 {
 	// this->_index = this->_connectionCount++;
 	// std::stringstream ss;
 	// ss << "created " << this->_index;;
 	// this->_logger.log(ss.str());
 	// std::cout << this->_requestString << std::endl;
+	this->_logger.log("Connection created at fd" + std::to_string(fd));
 }
 
-Connection::Connection(): _logger(Logger("Connection"))
-{
-}
+// Connection::Connection(): _logger(Logger("Connection")), _serverBlock()
+// {
+// }
 
-
-Connection::Connection( const Connection & src ):  _fd(src._fd), _master(src._master), _requestString(src._requestString), _logger(Logger("Connection"))
+Connection::Connection( const Connection & src ):  _logger(Logger("Connection"))
 {
+	_serverBlock = src._serverBlock;
+	_request = src._request;
+	_response = src._response;
 	// this->_index = this->_connectionCount++;
-	// std::stringstream ss;
-	// ss << "copy constructor " << this->_index;
-	// this->_logger.log(ss.str());
-	// std::cout << _fd << std::endl;
-	// std::cout << _requestString << std::endl;
+	fd = src.fd;
 }
-
-
-/*
-** -------------------------------- DESTRUCTOR --------------------------------
-*/
 
 Connection::~Connection()
 {
@@ -47,24 +41,19 @@ Connection::~Connection()
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Connection &	Connection::operator=( Connection const & rhs )
-{
-	(void)rhs;
-	if ( this != &rhs )
-	{
-		this->_fd = rhs._fd;
-		this->_master = rhs._master;
-		this->_requestString = rhs._requestString;
-		this->_logger = rhs._logger;
-		this->_index = this->_connectionCount++;
-
-
-		// std::stringstream ss;
-		// ss << "copy assignment " << this->_connectionCount;
-		// this->_logger.log(ss.str());
-	}
-	return *this;
+Connection& Connection::operator=(const Connection & rhs) {
+    if (this != &rhs) {
+        // Since _serverBlock is a reference, it cannot be reassigned
+        // Logger can be reinitialized or reconfigured
+        _logger = Logger("Connection");
+		_serverBlock = rhs._serverBlock;
+        // Ensure other member variables like _request and _response are copied correctly
+        _request = rhs._request;
+        _response = rhs._response;
+    }
+    return *this;
 }
+
 
 std::ostream &	operator<<( std::ostream & o, Connection const & i )
 {
@@ -79,27 +68,44 @@ std::ostream &	operator<<( std::ostream & o, Connection const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Connection::readData(char *requestString)
+bool Connection::readData()
 {
-	_requestString += std::string(requestString);
+	char buf[BUFFER_SIZE]; // buffer for client data
+	memset(buf, 0, BUFFER_SIZE);
+	ssize_t bytes_read = read(fd, buf, BUFFER_SIZE - 1);
 
-	std::string copy = _requestString;
-	if (copy.find("\r\n\r\n") != std::string::npos) {
-		std::cout << "Request complete" << std::endl;
-		// if (FD_ISSET(_fd, _master)) {
-			std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
-			std::cout << _fd << _index << std::endl;
-			send(_fd, response.c_str(), response.length(), 0);
-			this->_logger.log("Response sent");
-		// }			
-		return ;
+	if (bytes_read == -1) {
+		perror("read");
+		return false;
+	} else if (bytes_read == 0) {
+		return false; // Connection closed by client
 	}
+	buf[bytes_read] = '\0';
+	_request += buf;
+	std::cout << RED << buf << std::endl;
+	std::cout << BLUE << _request << RESET << std::endl;
+	if (_request.find("\r\n\r\n") != std::string::npos) {
+		_response = _serverBlock->handleRequest(_request);
+		return true;
+	}
+	return true;
 }
 
+bool Connection::sendData()
+{
+	if (_response.empty()) {
+		return false;
+	}
+	ssize_t bytes_sent = send(fd, _response.c_str(), _response.length(), 0);
+	if (bytes_sent == -1) {
+		perror("send");
+		return false;
+	}
+	_response.clear();
+	_request.clear();
+	return true;
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
-
-
-/* ************************************************************************** */

@@ -1,9 +1,12 @@
 #include "ConfigParser.hpp"
 
-void ConfigParser::parseConfig(const std::string& filename) {
+void ConfigParser::parseConfig(const std::string& filename, std::vector<ServerBlock*>& serverBlocks) {
     std::ifstream configFile(filename.c_str());
     std::string line;
     Location* currentLocation = NULL;
+    ServerBlock *server = NULL;
+    bool inServerBlock = false, inLocationBlock = false;
+
 
     if (!configFile.is_open()) {
         std::cerr << "Failed to open config file." << std::endl;
@@ -15,29 +18,53 @@ void ConfigParser::parseConfig(const std::string& filename) {
         if (line.empty() || line[0] == '#') continue;
 
         std::stringstream ss(line);
-        std::string key, value;
+        std::string key, value, end;
         ss >> key;
 
+        std::cout << line << std::endl; 
         if (key == "server") {
-            continue;
+            ss >> end;
+            if (end == "{") {
+                inServerBlock = true;
+                serverBlocks.push_back( new ServerBlock());
+                server = serverBlocks.back();
+                continue;
+            } else {
+                std::cerr << "Invalid server block." << std::endl;
+                return;
+            }
         } else if (key == "location") {
             ss >> value;
-            server.locations.push_back(Location());
-            currentLocation = &server.locations.back();
+            ss >> end;
+            std::cout << value << end << inServerBlock << std::endl;
+            if (value.empty() || end != "{" || !inServerBlock) {
+                std::cerr << "Invalid location block." << std::endl;
+                return;
+            }
+            server->locations.push_back(Location());
+            currentLocation = &server->locations.back();
             currentLocation->path = value;
+            inLocationBlock = true;
+            continue;
         } else if (key == "}") {
-            currentLocation = NULL;
-        } else if (currentLocation) {
+            if (inLocationBlock) {
+                currentLocation = NULL;
+                inLocationBlock = false;
+            } else if (inServerBlock) {
+                server = NULL;
+                inServerBlock = false;
+            }
+        } else if (inLocationBlock) {
             parseLocationConfig(ss, key, *currentLocation);
-        } else {
-            parseServerConfig(ss, key, server);
+        } else if (inServerBlock) {
+            parseServerConfig(ss, key, *server);
         }
     }
 
     configFile.close();
 }
 
-void ConfigParser::parseServerConfig(std::stringstream& ss, std::string& key, Server& server) {
+void ConfigParser::parseServerConfig(std::stringstream& ss, std::string& key, ServerBlock& server) {
     std::string value;
     if (key == "listen") {
         ss >> server.listen;
@@ -66,7 +93,7 @@ void ConfigParser::parseLocationConfig(std::stringstream& ss, std::string& key, 
     }
 }
 
-void ConfigParser::displayConfig() const {
+void ConfigParser::displayConfig(ServerBlock& server) const {
     server.display();
 }
 

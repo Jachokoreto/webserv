@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Connection.hpp                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/05/16 19:45:34 by jatan             #+#    #+#             */
+/*   Updated: 2024/05/16 19:46:16 by jatan            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef CONNECTION_HPP
 # define CONNECTION_HPP
 
@@ -11,29 +23,35 @@
 # include <unistd.h> // execve, dup, dup2, pipe, fork
 
 # include "Logger.hpp"
+# include "ServerBlock.hpp"
 
+#define BUFFER_SIZE 1024
 
 class Connection
 {
 
 	public:
-
-		Connection();
-		Connection(int fd, fd_set *master);
+		int fd;
+		
+		// Connection();
+		Connection(int fd, ServerBlock* serverBlock);
 		Connection( Connection const & src );
 		Connection & operator=( Connection const & rhs );
 		~Connection();
 
-		void readData(char *requestString);
-		static int _connectionCount;
+		bool readData();
+		bool sendData();
 
 
 	private:
-		int _fd;
-		fd_set* _master;
-		std::string _requestString;
+		// fd_set* _master;
+		// std::string _requestString;
+		std::string _request;
+		std::string _response;
+		ServerBlock* _serverBlock;
 		Logger _logger;
-		int _index;
+		static int _connectionCount;
+		// int _index;
 
 
 
