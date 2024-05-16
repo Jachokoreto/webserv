@@ -34,6 +34,8 @@ Connection::~Connection()
 	// std::stringstream ss;
 	// ss << "deleted  " << this->_index;
 	// this->_logger.error(ss.str());
+	delete _request;
+	delete _response;
 }
 
 
@@ -70,6 +72,7 @@ std::ostream &	operator<<( std::ostream & o, Connection const & i )
 
 bool Connection::readData()
 {
+	this->_logger.log("Reading data");
 	char buf[BUFFER_SIZE]; // buffer for client data
 	memset(buf, 0, BUFFER_SIZE);
 	ssize_t bytes_read = read(fd, buf, BUFFER_SIZE - 1);
@@ -81,28 +84,45 @@ bool Connection::readData()
 		return false; // Connection closed by client
 	}
 	buf[bytes_read] = '\0';
-	_request += buf;
-	std::cout << RED << buf << std::endl;
-	std::cout << BLUE << _request << RESET << std::endl;
-	if (_request.find("\r\n\r\n") != std::string::npos) {
-		_response = _serverBlock->handleRequest(_request);
-		return true;
-	}
-	return true;
-}
-
-bool Connection::sendData()
-{
-	if (_response.empty()) {
+	// _request += buf;
+	// std::cout << RED << buf << std::endl;
+	// std::cout << BLUE << _request << RESET << std::endl;
+	// if (_request.find("\r\n\r\n") != std::string::npos) {
+	// 	// _response = _serverBlock->handleRequest(_request);
+	// 	return true;
+	// }
+	try {	
+		_request = new Request(buf);
+		_response = new Response();
+		_serverBlock->router.routeRequest(*_request, *_response);
+	} catch (const std::exception &e) {
+		_logger.error(e.what());
 		return false;
 	}
-	ssize_t bytes_sent = send(fd, _response.c_str(), _response.length(), 0);
+
+	// return true;}
+	return true;
+}
+bool Connection::sendData(void)
+{
+	if (_response == NULL || _request == NULL ) {
+		return false;
+	}
+	this->_logger.log("Sending data");
+	const std::string resString = _response->toString();
+	if (resString.empty()) {
+		return false;
+	}
+	ssize_t bytes_sent = send(fd, resString.c_str(), resString.length(), 0);
+	delete _request;
+	_request = NULL;
+	delete _response;
+	_response = NULL;
 	if (bytes_sent == -1) {
 		perror("send");
 		return false;
 	}
-	_response.clear();
-	_request.clear();
+
 	return true;
 }
 

@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 23:19:09 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 02:22:20 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 04:51:10 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,17 @@ Request::Request(const std::string &requestString)
 		while (++headerEndIterator != split.end())
 			this->_body = this->_body + *headerEndIterator + '\n';
 }
+
+// Request::Request() {}
+
+Request::Request(Request const &src){
+	this->_method = src._method;
+	this->_uri = src._uri;
+	this->_version = src._version;
+	this->_headers = src._headers;
+	this->_body = src._body;
+}
+
 
 Request::~Request() {}
 

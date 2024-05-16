@@ -3,10 +3,10 @@
 void ConfigParser::parseConfig(const std::string& filename, std::vector<ServerBlock*>& serverBlocks) {
     std::ifstream configFile(filename.c_str());
     std::string line;
-    Location* currentLocation = NULL;
     ServerBlock *server = NULL;
     bool inServerBlock = false, inLocationBlock = false;
-
+    RouteDetails *temp;
+    std::string currentRoute;
 
     if (!configFile.is_open()) {
         std::cerr << "Failed to open config file." << std::endl;
@@ -14,14 +14,13 @@ void ConfigParser::parseConfig(const std::string& filename, std::vector<ServerBl
     }
 
     while (getline(configFile, line)) {
-        trim(line);
-        if (line.empty() || line[0] == '#') continue;
+        trim(line); // remove leading and trailing whitespaces
+        if (line.empty() || line[0] == '#') continue; // skip empty lines and comments
 
         std::stringstream ss(line);
         std::string key, value, end;
         ss >> key;
 
-        std::cout << line << std::endl; 
         if (key == "server") {
             ss >> end;
             if (end == "{") {
@@ -30,37 +29,40 @@ void ConfigParser::parseConfig(const std::string& filename, std::vector<ServerBl
                 server = serverBlocks.back();
                 continue;
             } else {
-                std::cerr << "Invalid server block." << std::endl;
+                std::cerr << "Key server is reserved for server block\nie: server {...}" << std::endl;
                 return;
             }
-        } else if (key == "location") {
+        } else if (key == "route") {
             ss >> value;
             ss >> end;
-            std::cout << value << end << inServerBlock << std::endl;
-            if (value.empty() || end != "{" || !inServerBlock) {
-                std::cerr << "Invalid location block." << std::endl;
+            // std::cout << value << end << inServerBlock << std::endl;
+            if (value.empty() || end != "{" ) {
+                std::cerr << "Invalid route block\nie: route /pathname {...}" << std::endl;
+                return;
+            } else if (inServerBlock == false) {
+                std::cerr << "route should be inside a server {}" << std::endl;
                 return;
             }
-            server->locations.push_back(Location());
-            currentLocation = &server->locations.back();
-            currentLocation->path = value;
+            currentRoute = value;
+            temp = new RouteDetails();
             inLocationBlock = true;
             continue;
         } else if (key == "}") {
             if (inLocationBlock) {
-                currentLocation = NULL;
+                server->router.addRoute(currentRoute, temp);
+                currentRoute = "";
+                temp = NULL;
                 inLocationBlock = false;
             } else if (inServerBlock) {
                 server = NULL;
                 inServerBlock = false;
             }
         } else if (inLocationBlock) {
-            parseLocationConfig(ss, key, *currentLocation);
+            parseLocationConfig(ss, key, *temp);
         } else if (inServerBlock) {
             parseServerConfig(ss, key, *server);
         }
     }
-
     configFile.close();
 }
 
@@ -68,27 +70,32 @@ void ConfigParser::parseServerConfig(std::stringstream& ss, std::string& key, Se
     std::string value;
     if (key == "listen") {
         ss >> server.listen;
-    } else if (key == "root") {
-        ss >> server.root;
-    } else if (key == "index") {
-        ss >> server.index;
     }
 }
 
-void ConfigParser::parseLocationConfig(std::stringstream& ss, std::string& key, Location& loc) {
+void ConfigParser::parseLocationConfig(std::stringstream& ss, std::string& key, RouteDetails& routeDetails) {
     std::string value;
     if (key == "root") {
-        ss >> loc.root;
+        ss >> routeDetails.root;
     } else if (key == "index") {
-        ss >> loc.index;
-    } else if (key == "cgi_pass") {
-        ss >> loc.cgi_pass;
+        ss >> routeDetails.index;
+    // } else if (key == "cgi_pass") {
+    //     ss >> routeDetails.cgi_pass;
     } else if (key == "autoindex") {
         ss >> value;
-        loc.autoindex = (value == "on");
+        routeDetails.autoindex = (value == "on");
     } else if (key == "allowed_methods") {
         while (ss >> value) {
-            loc.allowed_methods.push_back(value);
+            if (value == "GET")
+                routeDetails.allowedMethods |= GET; // add GET to allowedMethods
+            else if (value == "POST")
+                routeDetails.allowedMethods |= POST; // add POST to allowedMethods
+            else if (value == "DELETE")
+                routeDetails.allowedMethods |= DELETE; // add DELETE to allowedMethods
+            else {
+                std::cerr << "Invalid method: " << value << std::endl;
+                return;
+            }
         }
     }
 }

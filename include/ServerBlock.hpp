@@ -23,7 +23,7 @@
 # include <unistd.h> // execve, dup, dup2, pipe, fork
 
 # include "Logger.hpp"
-#include "Location.hpp"
+# include "Router.hpp"
 
 using std::string;
 using std::cout;
@@ -33,9 +33,9 @@ using std::vector;
 class ServerBlock {
 public:
     int listen;
-    string root;
-    string index;
-    vector<Location> locations;
+    // string root;
+    // string index;
+    Router router;
 
     ServerBlock();
 

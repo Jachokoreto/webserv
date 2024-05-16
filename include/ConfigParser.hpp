@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 19:45:30 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/16 19:46:18 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 03:19:58 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ public:
 
 private:
     void parseServerConfig(std::stringstream& ss, std::string& key, ServerBlock& server);
-    void parseLocationConfig(std::stringstream& ss, std::string& key, Location& loc);
+    void parseLocationConfig(std::stringstream& ss, std::string& key, RouteDetails& routeDetails);
     static void trim(std::string& str);
 };
 

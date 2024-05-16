@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 02:00:28 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 01:28:51 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 04:49:44 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,9 @@ private:
 	std::string _uri;
 
 public:
+	Request();
 	Request(const std::string &requestString);
+	Request(Request const &src);
 	~Request();
 
 	class NotAllowedException : public std::exception

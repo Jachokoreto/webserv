@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 19:45:34 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/16 19:46:16 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 04:51:32 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 # include "Logger.hpp"
 # include "ServerBlock.hpp"
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 30000
 
 class Connection
 {
@@ -39,15 +39,17 @@ class Connection
 		Connection & operator=( Connection const & rhs );
 		~Connection();
 
-		bool readData();
-		bool sendData();
+		bool readData(void);
+		bool sendData(void);
 
 
 	private:
 		// fd_set* _master;
 		// std::string _requestString;
-		std::string _request;
-		std::string _response;
+		// std::string _request;
+		// std::string _response;
+		Request* _request;
+		Response* _response;
 		ServerBlock* _serverBlock;
 		Logger _logger;
 		static int _connectionCount;

@@ -19,7 +19,7 @@ void testWebserver(void)
     ConfigParser configParser;
     std::vector<ServerBlock*> serverBlocks;
 
-    configParser.parseConfig("default.conf", serverBlocks);
+    configParser.parseConfig("conf/default.conf", serverBlocks);
     for (std::vector<ServerBlock*>::iterator it = serverBlocks.begin(); it != serverBlocks.end(); it++)
     {
         configParser.displayConfig(**it);
@@ -30,7 +30,7 @@ void testWebserver(void)
 }
 int main(void)
 {
-    testAutoindex();
-    // testWebserver();
+    // testAutoindex();
+    testWebserver();
     
 } 

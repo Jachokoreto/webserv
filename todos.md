@@ -18,9 +18,15 @@
 - [ ] handling HTTP authentication (Basic, Digest, etc.).
 - [ ] handling server-side compression (gzip, deflate, etc.).
 
+### server-router
+- [ ] parse config create ServerBlocks with Router
+- [ ] Connection read data into Request
+- [ ] Connection send data from Response
+
 ### Reminder!
 - take configuration file, like nginx
 - cant `execv` another web server
 - the server must never block, use select(poll equivalent)
 - client can be bounced properly if necessary
 - multiplexing
+

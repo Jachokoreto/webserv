@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 19:46:03 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/16 21:22:08 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 04:50:20 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,9 @@
 #include "Connection.hpp"
 #include "ServerBlock.hpp"
 
-#define PORT "8080"
-#define BACKLOG 10
-#define BUFFER_SIZE 1024
+// #define PORT "8080"
+// #define BACKLOG 10
+// #define BUFFER_SIZE 1024
 
 class Webserver
 {
@@ -67,7 +67,7 @@ private:
 	bool echoMessage(int client_socket);
 
 	int _listener; // socket fd
-	std::vector<ServerBlock*>& _serverBlocks;
+	// std::vector<ServerBlock*>& _serverBlocks;
 	Logger _logger;
 	std::map<int, ServerBlock*> _serverSockets;
 	// std::map<int, ServerBlock&> _client_sockets;

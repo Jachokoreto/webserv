@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/23 16:06:07 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/16 22:32:39 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 03:33:29 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,10 @@
  * @param hostname The hostname to bind to.
  * @param server The name of the server.
  */
-Webserver::Webserver(std::vector<ServerBlock*>& server_blocks) :  _serverBlocks(server_blocks), _logger(Logger("Webserver"))
+Webserver::Webserver(std::vector<ServerBlock*>& serverBlocks) : _logger(Logger("Webserver"))
 {
 
-    for (std::vector<ServerBlock*>::iterator it = _serverBlocks.begin(); it != _serverBlocks.end(); it++)
+    for (std::vector<ServerBlock*>::iterator it = serverBlocks.begin(); it != serverBlocks.end(); it++)
     {
         setupServerSocket(**it);
     }
@@ -30,6 +30,17 @@ Webserver::Webserver(std::vector<ServerBlock*>& server_blocks) :  _serverBlocks(
 
 Webserver::~Webserver()
 {
+    for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); it++)
+    {
+        delete *it;
+    }
+    _connections.clear();
+    for (std::map<int, ServerBlock*>::iterator it = _serverSockets.begin(); it != _serverSockets.end(); it++)
+    {
+        delete it->second;
+    }
+    _serverSockets.clear();
+    this->_logger.log("Webserver cleaned up");
 }
 
 void Webserver::start() {

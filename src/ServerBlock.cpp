@@ -2,18 +2,13 @@
 
 ServerBlock::ServerBlock() {
     listen = 0;
-    root = "";
-    index = "";
+
     std::cout << "ServerBlock created" << std::endl;
 }
 
 void ServerBlock::display() const {
-    std::cout << "Server Listen on: " << listen << std::endl
-              << " Root: " << root << std::endl
-              << " Index: " << index << std::endl;
-    for (size_t i = 0; i < locations.size(); ++i) {
-        locations[i].display();
-    }
+    std::cout << "Server Listen on: " << listen << std::endl;
+    router.display();
 }
 
 
