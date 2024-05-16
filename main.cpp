@@ -7,16 +7,16 @@ int main(void)
 
 	// webserver.start();
 
-	Router router("/home/sirhcofe/Core/webserv/public");
-	StaticFileHandler *staticHandler = new StaticFileHandler;
+	Router router;
+	// StaticFileHandler *staticHandler = new StaticFileHandler;
 	// APIHandler apiHandler;
 
-	router.addRoute("/static-files", staticHandler);
+	router.addRoute("/jaclyn", false, "boomba.html", "/public/usr/jaclyn-dir", GET & POST);
 	// router.addRoute("/static-files/*", cgiHandler);
 	// router.addRoute("/static-files", cgiHandler);
 	// router.addRoute("/cgi")
 
-	std::string requestStr = "GET /static-files/floor.png HTTP/1.1";
+	std::string requestStr = "GET /jaclyn/floor.png HTTP/1.1";
 
 	Request incomingRequest(requestStr);
 	Response response;
@@ -26,6 +26,6 @@ int main(void)
 	std::string responseStr = response.toString();
 
 	std::cout << responseStr << std::endl;
-	delete staticHandler;
+	// delete staticHandler;
 	return (0);
 }

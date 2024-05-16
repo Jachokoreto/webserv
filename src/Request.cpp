@@ -6,13 +6,14 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 23:19:09 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/15 22:47:28 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/16 23:38:47 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 
-const std::vector<std::string> Request::methodVector = {"GET", "POST", "PUT", "PATCH", "DELETE"};
+const char *methods[] = {"GET", "POST", "PUT", "PATCH", "DELETE"};
+const std::vector<std::string> Request::methodVector(methods, methods + sizeof(methods) / sizeof(char *));
 
 const std::string Request::getUri() const
 {
@@ -45,22 +46,23 @@ Request::Request(const std::string &requestString)
 	this->setUri(requestLine[1]);
 	this->_version = "HTTP/1.1";
 
-	std::vector<std::string>::iterator iterator = std::find(split.begin() + 1, split.end(), "");
-	std::vector<std::string> header(split.begin() + 1, iterator);
-	for (const std::string &entry : header)
+	// from split separate body and header, seperator is """
+	std::vector<std::string>::iterator headerEndIterator = std::find(split.begin() + 1, split.end(), "");
+	// std::vector<std::string> header(split.begin() + 1, iterator);
+	for (std::vector<std::string>::iterator startIt = split.begin() + 1; startIt != headerEndIterator; startIt++)
 	{
-		std::size_t delimPos = entry.find(": ");
+		std::size_t delimPos = startIt->find(": ");
 		if (delimPos != std::string::npos && delimPos != 0)
 		{
-			std::string key = entry.substr(0, delimPos);
-			std::string value = entry.substr(delimPos + 2);
+			std::string key = startIt->substr(0, delimPos);
+			std::string value = startIt->substr(delimPos + 2);
 			this->addHeader(key, value);
 		}
 	}
 
-	if (iterator != split.end())
-		while (++iterator != split.end())
-			this->_body = this->_body + *iterator + '\n';
+	if (headerEndIterator != split.end())
+		while (++headerEndIterator != split.end())
+			this->_body = this->_body + *headerEndIterator + '\n';
 }
 
 Request::~Request() {}
