@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 19:45:20 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/17 16:43:34 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 17:14:35 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ public:
 	 *
 	 * @return * true if the request was handled, false if the request was not handled.
 	*/
-	bool handleRequest(const Request &request, Response &response, RouteDetails &routeDetails);
+	bool handleRequest(const Request &request, Response &response, RouteDetails &routeDetails, const std::string &fullPath);
 
 
 

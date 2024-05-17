@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:58:26 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 17:14:14 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 17:16:56 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@ StaticFileHandler::~StaticFileHandler() {}
 
 bool StaticFileHandler::handleRequest(const Request &request, Response &response, RouteDetails &routeDetail, const std::string &fullPath)
 {
+	(void)request; 
+	(void)routeDetail;
 	struct stat path_stat;
 	stat(fullPath.c_str(), &path_stat);
 	if (!S_ISREG(path_stat.st_mode)) // Check if it's not a regular file

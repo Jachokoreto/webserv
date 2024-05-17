@@ -19,7 +19,7 @@ void testAutoindex(void)
     AutoindexHandler autoindexHandler;
     RouteDetails routeDetails;
     routeDetails.root = "/Users/user/sidess/webserv/public";
-    autoindexHandler.handleRequest(req, res, routeDetails);
+    autoindexHandler.handleRequest(req, res, routeDetails, "/Users/user/sidess/webserv/public");
     std::cout << res.toString() << std::endl;
 }
 
@@ -48,7 +48,7 @@ void testWebserver(void)
 }
 int main(void)
 {
-	testRouter();
+	// testRouter();
 	// testAutoindex();
-	// testWebserver();
+	testWebserver();
 }

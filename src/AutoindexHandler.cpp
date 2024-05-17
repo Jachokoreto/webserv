@@ -35,18 +35,18 @@ std::string AutoindexHandler::loadHtmlTemplate(void)
 	return autoindexTempl.str();
 }
 
-bool AutoindexHandler::handleRequest(const Request &req, Response &res, RouteDetails &routeDetails)
+bool AutoindexHandler::handleRequest(const Request &req, Response &res, RouteDetails &routeDetails, const std::string &fullPath)
 {
 	DIR *dir;
 	dirent *entry;
-	std::string path = routeDetails.root + req.getResource();
-	std::cout << path << std::endl;
+	// std::string path = routeDetails.root + req.getResource();
+	// std::cout << path << std::endl;
 	std::ifstream file("/autoindex/autoindex.html");
 	std::string autoindexTempl;
 	std::string listingHtml;
 
 	// check if request is for autoindex
-	if (!utl::isDirectory(path)) {
+	if (!utl::isDirectory(fullPath)) {
 		_logger.log("Not a directory");
 		return false;
 	}
@@ -63,9 +63,9 @@ bool AutoindexHandler::handleRequest(const Request &req, Response &res, RouteDet
 		return true;
 	}
 
-	if ((dir = opendir(path.c_str())) == NULL)
+	if ((dir = opendir(fullPath.c_str())) == NULL)
 	{
-		std::cerr << "Failed to open directory: " << path << std::endl;
+		std::cerr << "Failed to open directory: " << fullPath << std::endl;
 		res.setBody("<html><body><p>Error opening directory.</p></body></html>");
 		return true;
 	}
