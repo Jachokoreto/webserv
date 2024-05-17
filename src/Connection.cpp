@@ -13,7 +13,9 @@ Connection::Connection(int fd, ServerBlock* serverBlock): fd(fd), _serverBlock(s
 	// ss << "created " << this->_index;;
 	// this->_logger.log(ss.str());
 	// std::cout << this->_requestString << std::endl;
-	this->_logger.log("Connection created at fd" + std::to_string(fd));
+	this->_logger.log("Connection created at fd " + std::to_string(fd));
+	_request = NULL;
+	_response = NULL;
 }
 
 // Connection::Connection(): _logger(Logger("Connection")), _serverBlock()
@@ -36,6 +38,8 @@ Connection::~Connection()
 	// this->_logger.error(ss.str());
 	delete _request;
 	delete _response;
+	this->_logger.log("Connection closed at fd " + std::to_string(fd));
+
 }
 
 
@@ -72,7 +76,7 @@ std::ostream &	operator<<( std::ostream & o, Connection const & i )
 
 bool Connection::readData()
 {
-	this->_logger.log("Reading data");
+	this->_logger.log("Read data");
 	char buf[BUFFER_SIZE]; // buffer for client data
 	memset(buf, 0, BUFFER_SIZE);
 	ssize_t bytes_read = read(fd, buf, BUFFER_SIZE - 1);
@@ -84,6 +88,7 @@ bool Connection::readData()
 		return false; // Connection closed by client
 	}
 	buf[bytes_read] = '\0';
+	std::cout << "Received: " << buf << std::endl;
 	// _request += buf;
 	// std::cout << RED << buf << std::endl;
 	// std::cout << BLUE << _request << RESET << std::endl;
@@ -114,15 +119,15 @@ bool Connection::sendData(void)
 		return false;
 	}
 	ssize_t bytes_sent = send(fd, resString.c_str(), resString.length(), 0);
-	delete _request;
-	_request = NULL;
-	delete _response;
-	_response = NULL;
 	if (bytes_sent == -1) {
 		perror("send");
 		return false;
 	}
-
+	this->_logger.log("Data sent: " + resString + " //\nto fd " + std::to_string(fd));
+	delete _request;
+	_request = NULL;
+	delete _response;
+	_response = NULL;
 	return true;
 }
 

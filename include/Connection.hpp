@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 19:45:34 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/17 04:51:32 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 12:59:17 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,8 @@ class Connection
 		Request* _request;
 		Response* _response;
 		ServerBlock* _serverBlock;
-		Logger _logger;
 		static int _connectionCount;
+		Logger _logger;
 		// int _index;
 
 

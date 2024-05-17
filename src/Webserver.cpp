@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/23 16:06:07 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/17 03:33:29 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 13:15:38 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,11 +35,11 @@ Webserver::~Webserver()
         delete *it;
     }
     _connections.clear();
-    for (std::map<int, ServerBlock*>::iterator it = _serverSockets.begin(); it != _serverSockets.end(); it++)
+    for (std::map<int, ServerBlock*>::iterator it = _serverBlocks.begin(); it != _serverBlocks.end(); it++)
     {
         delete it->second;
     }
-    _serverSockets.clear();
+    _serverBlocks.clear();
     this->_logger.log("Webserver cleaned up");
 }
 
@@ -95,7 +95,7 @@ void Webserver::setupServerSocket(ServerBlock& serverBlock)
 
     setNonBlocking(server_socket);
     std::cout << serverBlock.listen << std::endl;
-    _serverSockets[server_socket] = &serverBlock;
+    _serverBlocks[server_socket] = &serverBlock;
 
 }
 
@@ -121,7 +121,7 @@ void Webserver::configureSelect(void)
     FD_ZERO(&_writeFds);
     _maxFd = 0;
 
-    for (std::map<int, ServerBlock*>::iterator it = _serverSockets.begin(); it != _serverSockets.end(); it++)
+    for (std::map<int, ServerBlock*>::iterator it = _serverBlocks.begin(); it != _serverBlocks.end(); it++)
     {
         FD_SET(it->first, &_readFds);
         if (it->first > _maxFd)
@@ -143,7 +143,7 @@ void Webserver::configureSelect(void)
 
 void Webserver::handleConnections()
 {
-    for (std::map<int, ServerBlock*>::iterator it = _serverSockets.begin(); it != _serverSockets.end(); it++)
+    for (std::map<int, ServerBlock*>::iterator it = _serverBlocks.begin(); it != _serverBlocks.end(); it++)
     {
         if (FD_ISSET(it->first, &_readFds))
         {
@@ -162,20 +162,24 @@ void Webserver::handleConnections()
             if ((*it)->readData() == false)
             {
                 close_conn = true;
+                close((*it)->fd);
+                delete *it;
+                it = _connections.erase(it);
+                continue;
             }
         }
         if (FD_ISSET((*it)->fd, &_writeFds))
         {
             // handle write
-            (*it)->sendData();
+            if ((*it)->sendData())
+            {
+                close_conn = true;
+                close((*it)->fd);
+                delete *it;
+                it = _connections.erase(it);
+            }
         }
-
-        if (close_conn)
-        {
-            close((*it)->fd);
-            it = _connections.erase(it);
-        }
-        else
+        if (close_conn == false)
         {
             ++it;
         }

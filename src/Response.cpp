@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/14 16:12:06 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 05:07:36 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 12:15:46 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,12 @@ Response::Response() : _logger(Logger("Response"))
 	statusMap[200] = "OK";
 	statusMap[404] = "Not Found";
 	statusMap[500] = "Internal Server Error";
+	std::cout << "Response constructor" << std::endl;
 }
 
-Response::~Response() {}
+Response::~Response() {
+	std::cout << "Response destructor" << std::endl;
+}
 
 void Response::setStatusCode(int status)
 {

@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 19:46:03 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/17 04:50:20 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 13:16:37 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,12 +46,15 @@
 class Webserver
 {
 public:
-	// Webserver(std::string port, std::string hostname, std::string server);
+	typedef std::map<int, ServerBlock*> serverBlockMap;
+	typedef std::map<int, ServerBlock*>::iterator serverBlockMapIt;
+	typedef std::vector<Connection *> connectionVec;
+	typedef std::vector<Connection *>::iterator connectionVecIt;
+
 	Webserver(std::vector<ServerBlock*>& serverBlocks);
 	~Webserver();
 
 	void start();
-	// void stop(); // no need to stop
 
 private:
 	int createSocket(std::string port, std::string hostname);
@@ -66,15 +69,12 @@ private:
 	void acceptNewConnection(int server_socket, ServerBlock *serverBlock);
 	bool echoMessage(int client_socket);
 
-	int _listener; // socket fd
-	// std::vector<ServerBlock*>& _serverBlocks;
+	int _listener; 
 	Logger _logger;
-	std::map<int, ServerBlock*> _serverSockets;
-	// std::map<int, ServerBlock&> _client_sockets;
-	std::vector<Connection*> _connections;
 	fd_set _readFds, _writeFds;
 	int _maxFd;
-	// std::map<int, Connection> _connections;
+	serverBlockMap _serverBlocks;
+	connectionVec _connections;
 
 	Webserver();
 };
