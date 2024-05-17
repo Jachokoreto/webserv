@@ -38,6 +38,7 @@ public:
     Router router;
 
     ServerBlock();
+    ServerBlock(Router router);
 
     void display() const;
     int getPort() const;

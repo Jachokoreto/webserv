@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileHandler.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:58:26 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 14:43:57 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/17 16:18:26 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,11 +94,11 @@ StaticFileHandler::StaticFileHandler() {}
 
 StaticFileHandler::~StaticFileHandler() {}
 
-void StaticFileHandler::handleRequest(const Request &request, Response &response, std::string root)
+bool StaticFileHandler::handleRequest(const Request &request, Response &response, RouteDetails &routeDetails)
 {
 	(void)request;
 	(void)response;
-	(void)root;
+	(void)routeDetails;
 	// std::string decodedPath = urlDecode(request.getUri());
 	// std::string normalizedPath = normalizePath(decodedPath);
 	// std::string filePath = this->_rootDirectory + request.getUri();
@@ -143,4 +143,5 @@ void StaticFileHandler::handleRequest(const Request &request, Response &response
 	// response.setStatusCode(200);
 	// response.setBody(content);
 	// response.addHeader("Content-Type", getMimeType(filePath));
+	return false;
 }

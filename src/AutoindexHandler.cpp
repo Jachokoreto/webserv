@@ -4,7 +4,7 @@
 ** ------------------------- CONSTRUCTOR & DESTRUCTOR --------------------------
 */
 
-AutoindexHandler::AutoindexHandler()
+AutoindexHandler::AutoindexHandler(): _logger(Logger("AutoindexHandler"))
 {
 }
 
@@ -35,26 +35,39 @@ std::string AutoindexHandler::loadHtmlTemplate(void)
 	return autoindexTempl.str();
 }
 
-void AutoindexHandler::handleRequest(const Request &req, Response &res, std::string root)
+bool AutoindexHandler::handleRequest(const Request &req, Response &res, RouteDetails &routeDetails)
 {
 	DIR *dir;
 	dirent *entry;
-	std::string path = root + req.getResource();
+	std::string path = routeDetails.root + req.getResource();
+	std::cout << path << std::endl;
 	std::ifstream file("/autoindex/autoindex.html");
 	std::string autoindexTempl;
 	std::string listingHtml;
+
+	// check if request is for autoindex
+	if (!utl::isDirectory(path)) {
+		_logger.log("Not a directory");
+		return false;
+	}
+	if (routeDetails.autoindex == false)
+	{
+		_logger.log("Autoindex is disabled");
+		return false;
+	}
 
 	autoindexTempl = loadHtmlTemplate();
 	if (autoindexTempl.empty())
 	{
 		res.errorResponse(500, "Failed to load HTML template.");
-		return;
+		return true;
 	}
 
 	if ((dir = opendir(path.c_str())) == NULL)
 	{
 		std::cerr << "Failed to open directory: " << path << std::endl;
 		res.setBody("<html><body><p>Error opening directory.</p></body></html>");
+		return true;
 	}
 
 	while ((entry = readdir(dir)) != NULL)
@@ -63,7 +76,9 @@ void AutoindexHandler::handleRequest(const Request &req, Response &res, std::str
 			continue; // Skip . and ..
 
 		std::string name = entry->d_name;
-		std::string link = (utl::isDirectory(path + "/" + name)) ? name + "/" : name;
+		// std::string link = (utl::isDirectory(path + "/" + name)) ? name + "/" : name;
+		std::string link = req.getRoute() + "/" + name;
+		std::cout << link << std::endl;
 		listingHtml += "<li><a href='" + link + "'>" + name + "</a></li>\n";
 	}
 	closedir(dir);
@@ -75,6 +90,7 @@ void AutoindexHandler::handleRequest(const Request &req, Response &res, std::str
 	}
 
 	res.setBody(autoindexTempl);
+	return true;
 }
 
 /*

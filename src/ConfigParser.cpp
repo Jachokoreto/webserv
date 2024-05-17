@@ -1,11 +1,11 @@
 #include "ConfigParser.hpp"
 
-void ConfigParser::parseConfig(const std::string& filename, std::vector<ServerBlock*>& serverBlocks) {
+void ConfigParser::createServerBlocksFromConf(const std::string& filename, std::vector<RequestHandler*>& requestHandlers, std::vector<ServerBlock*>& serverBlocks) {
     std::ifstream configFile(filename.c_str());
     std::string line;
     ServerBlock *server = NULL;
     bool inServerBlock = false, inLocationBlock = false;
-    RouteDetails *temp;
+    RouteDetails *routeDetails;
     std::string currentRoute;
 
     if (!configFile.is_open()) {
@@ -25,8 +25,10 @@ void ConfigParser::parseConfig(const std::string& filename, std::vector<ServerBl
             ss >> end;
             if (end == "{") {
                 inServerBlock = true;
+                // create new server block
                 serverBlocks.push_back( new ServerBlock());
                 server = serverBlocks.back();
+                server->router.assignHandlers(requestHandlers);
                 continue;
             } else {
                 std::cerr << "Key server is reserved for server block\nie: server {...}" << std::endl;
@@ -44,21 +46,21 @@ void ConfigParser::parseConfig(const std::string& filename, std::vector<ServerBl
                 return;
             }
             currentRoute = value;
-            temp = new RouteDetails();
+            routeDetails = new RouteDetails();
             inLocationBlock = true;
             continue;
         } else if (key == "}") {
             if (inLocationBlock) {
-                server->router.addRoute(currentRoute, temp);
+                server->router.addRoute(currentRoute, routeDetails);
                 currentRoute = "";
-                temp = NULL;
+                routeDetails = NULL;
                 inLocationBlock = false;
             } else if (inServerBlock) {
                 server = NULL;
                 inServerBlock = false;
             }
         } else if (inLocationBlock) {
-            parseLocationConfig(ss, key, *temp);
+            parseLocationConfig(ss, key, *routeDetails);
         } else if (inServerBlock) {
             parseServerConfig(ss, key, *server);
         }
@@ -83,6 +85,7 @@ void ConfigParser::parseLocationConfig(std::stringstream& ss, std::string& key, 
     //     ss >> routeDetails.cgi_pass;
     } else if (key == "autoindex") {
         ss >> value;
+        std::cout << "AUTOINDEX" << value << std::endl;
         routeDetails.autoindex = (value == "on");
     } else if (key == "allowed_methods") {
         while (ss >> value) {

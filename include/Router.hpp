@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:50:55 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 04:11:02 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 16:05:04 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,15 +31,24 @@
 
 class Router
 {
-private:
-	std::map<std::string, RouteDetails*> _routeTable;
-
 public:
+
+	typedef std::vector<RequestHandler *> requestHandlerVec;
+	typedef std::vector<RequestHandler *>::iterator requestHandlerVecIt;
+
+	typedef std::map<std::string, RouteDetails *> routeTableMap;
+	typedef std::map<std::string, RouteDetails *>::iterator routeTableMapIt;
+
 	Router();
 	~Router();
 	void addRoute(const std::string &path, RouteDetails *bruh);
 	void routeRequest(const Request &request, Response &response);
 	void display(void) const;
+	void assignHandlers(requestHandlerVec &handlers);
+
+private:
+	routeTableMap _routeTable;
+	requestHandlerVec *_requestHandlers;
 };
 
 #endif

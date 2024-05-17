@@ -7,7 +7,9 @@ void testAutoindex(void)
     Request req("GET / HTTP/1.1\r\nHost: localhost:8080\r\n\r\n");
     Response res;
     AutoindexHandler autoindexHandler;
-    autoindexHandler.handleRequest(req, res, "/Users/user/sidess/webserv/public");
+    RouteDetails routeDetails;
+    routeDetails.root = "/Users/user/sidess/webserv/public";
+    autoindexHandler.handleRequest(req, res, routeDetails);
     std::cout << res.toString() << std::endl;
 }
 
@@ -17,9 +19,14 @@ void testWebserver(void)
     
     // webserver.start();
     ConfigParser configParser;
+    std::vector<RequestHandler*> requestHandlers;
+    requestHandlers.push_back(new AutoindexHandler());
+    requestHandlers.push_back(new StaticFileHandler());
     std::vector<ServerBlock*> serverBlocks;
 
-    configParser.parseConfig("conf/default.conf", serverBlocks);
+    
+
+    configParser.createServerBlocksFromConf("conf/default.conf", requestHandlers,  serverBlocks);
     for (std::vector<ServerBlock*>::iterator it = serverBlocks.begin(); it != serverBlocks.end(); it++)
     {
         configParser.displayConfig(**it);

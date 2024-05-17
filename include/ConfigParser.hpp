@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 19:45:30 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/17 03:19:58 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 16:00:14 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ using std::vector;
 
 class ConfigParser {
 public:
-    void parseConfig(const std::string& filename, std::vector<ServerBlock*>& serverBlocks);
+    void createServerBlocksFromConf(const std::string& filename, std::vector<RequestHandler*>& requestHandlers, std::vector<ServerBlock*>& serverBlocks);
     void displayConfig(ServerBlock& server) const;
 
 private:

@@ -89,14 +89,6 @@ bool Connection::readData()
 		return false; // Connection closed by client
 	}
 	buf[bytes_read] = '\0';
-	std::cout << "Received: " << buf << std::endl;
-	// _request += buf;
-	// std::cout << RED << buf << std::endl;
-	// std::cout << BLUE << _request << RESET << std::endl;
-	// if (_request.find("\r\n\r\n") != std::string::npos) {
-	// 	// _response = _serverBlock->handleRequest(_request);
-	// 	return true;
-	// }
 	try
 	{
 		_request = new Request(buf);
@@ -108,10 +100,9 @@ bool Connection::readData()
 		_logger.error(e.what());
 		return false;
 	}
-
-	// return true;}
 	return true;
 }
+
 bool Connection::sendData(void)
 {
 	if (_response == NULL || _request == NULL)
