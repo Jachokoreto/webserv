@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 23:19:09 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 16:59:48 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 17:11:40 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,65 @@
 
 const char *methods[] = {"GET", "POST", "PUT", "PATCH", "DELETE"};
 const std::vector<std::string> Request::methodVector(methods, methods + sizeof(methods) / sizeof(char *));
+
+std::string normalizePath(const std::string &path)
+{
+	std::cout << path << std::endl;
+	std::vector<std::string> parts = utl::splitStringByDelim(path, '/');
+	std::vector<std::string> stack;
+
+	for (size_t i = 0; i < parts.size(); i++)
+	{
+		if (parts[i] == "." || parts[i].empty())
+			continue; // Skip current directory references and empty tokens
+		else if (parts[i] == "..")
+		{
+			if (!stack.empty())
+				stack.pop_back(); // Pop the last directory aka move up in the directory tree
+		}
+		else
+		{
+			stack.push_back(parts[i]);
+		}
+	}
+	std::stringstream result;
+	for (size_t i = 0; i < stack.size(); i++)
+		result << "/" << stack[i];
+	return result.str().empty() ? "/" : result.str();
+}
+
+std::string urlDecode(const std::string &encoded)
+{
+	std::string result;
+	result.reserve(encoded.length());
+	for (size_t i = 0; i < encoded.length(); i++)
+	{
+		if (encoded[i] == '%' && i + 2 < encoded.length())
+		{
+			int value = 0;
+			std::istringstream is(encoded.substr(i + 1, 2));
+			if (is >> std::hex >> value)
+			{
+				result += static_cast<char>(value);
+				i += 2;
+			}
+			else
+				result += '%';
+		}
+		else if (encoded[i] == '+')
+			result += ' ';
+		else
+			result += encoded[i];
+	}
+	return result;
+}
+
+std::string sanitizeUri(const std::string &uri)
+{
+	const std::string decodedPath = urlDecode(uri);
+	const std::string normalizedPath = normalizePath(decodedPath);
+	return (normalizedPath);
+}
 
 const std::string Request::getUri() const
 {
@@ -57,7 +116,7 @@ Request::Request(const std::string &requestString)
 	if (std::find(Request::methodVector.begin(), Request::methodVector.end(), method) == Request::methodVector.end())
 		throw Request::NotAllowedException("Invalid method");
 	this->setMethod(method);
-	this->setUri(requestLine[1]);
+	this->setUri(sanitizeUri(requestLine[1]));
 	this->_version = "HTTP/1.1";
 
 	// from split separate body and header, seperator is """

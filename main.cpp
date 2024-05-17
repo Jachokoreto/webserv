@@ -2,6 +2,16 @@
 #include "ConfigParser.hpp"
 #include "AutoindexHandler.hpp"
 
+void testRouter(void)
+{
+	Router router("/home/sirhcofe/Core/webserv");
+	router.addRoute("/jaclyn", new RouteDetails(false, "index.html", "/public/jaclyn", 1));
+
+	Request req("GET /jaclyn/./haha/popo/.. HTTP/1.1\r\nHOST: localhost:8080");
+	Response res;
+	router.routeRequest(req, res);
+}
+
 void testAutoindex(void)
 {
     Request req("GET / HTTP/1.1\r\nHost: localhost:8080\r\n\r\n");
@@ -32,12 +42,13 @@ void testWebserver(void)
         configParser.displayConfig(**it);
     }
 
-    Webserver webserver(serverBlocks);
-    webserver.start();
+
+	Webserver webserver(serverBlocks);
+	webserver.start();
 }
 int main(void)
 {
-    // testAutoindex();
-    testWebserver();
-    
-} 
+	testRouter();
+	// testAutoindex();
+	// testWebserver();
+}

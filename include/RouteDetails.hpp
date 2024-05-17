@@ -3,28 +3,29 @@
 /*                                                        :::      ::::::::   */
 /*   RouteDetails.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/17 03:10:02 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/17 03:35:05 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 13:10:22 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ROUTEDETAILS_HPP
 #define ROUTEDETAILS_HPP
 
-# include <string>
+#include <string>
 
 class RouteDetails
 {
 public:
-    RouteDetails();
-    ~RouteDetails();
+	RouteDetails();
+	RouteDetails(bool autoindex, std::string index, std::string root, int allowedMethods);
+	~RouteDetails();
 
-    bool autoindex;
-    std::string index;
-    std::string root;
-    int allowedMethods;
+	bool autoindex;
+	std::string index;
+	std::string root;
+	int allowedMethods;
 };
 
 #endif
