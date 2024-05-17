@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileHandler.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:54:29 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 02:16:44 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 16:55:24 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class StaticFileHandler : public RequestHandler
 public:
 	StaticFileHandler();
 	~StaticFileHandler();
-	void handleRequest(const Request &request, Response &response, std::string root);
+	bool handleRequest(const Request &request, Response &response, RouteDetails &routeDetail, const std::string &fullPath);
 };
 
 #endif

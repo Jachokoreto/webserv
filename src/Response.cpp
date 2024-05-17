@@ -3,23 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/14 16:12:06 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 12:15:46 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 14:54:03 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
-
-// const std::map<int, std::string> Response::statusMap = {
-// 	{200, "OK"},
-// 	{202, "Accepted"},
-// 	{302, "Found"},
-// 	{403, "Forbidden"},
-// 	{404, "Not Found"},
-// 	{405, "Method Not Allowed"},
-// 	{500, "Internal Server Error"}};
 
 std::map<int, std::string> Response::statusMap;
 
@@ -32,7 +23,8 @@ Response::Response() : _logger(Logger("Response"))
 	std::cout << "Response constructor" << std::endl;
 }
 
-Response::~Response() {
+Response::~Response()
+{
 	std::cout << "Response destructor" << std::endl;
 }
 
@@ -51,25 +43,24 @@ std::string Response::toString() const
 	std::stringstream responseStream;
 
 	// Status line
-	std::cout<<"1" << std::endl;
+	std::cout << "1" << std::endl;
 	responseStream << "HTTP/1.1 " << this->_statusCode << " " << Response::statusMap.at(this->_statusCode) << std::endl;
 
-	std::cout<<"2" << std::endl;
+	std::cout << "2" << std::endl;
 
 	// header
 	for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); it++)
 	{
 		responseStream << it->first << ": " << it->second << std::endl;
 	}
-	std::cout<<"3" << std::endl;
-
+	std::cout << "3" << std::endl;
 
 	// optional body
 	if (this->_body != "")
 		responseStream << std::endl
 					   << this->_body << std::endl;
 
-	std::cout<<"4" << std::endl;
+	std::cout << "4" << std::endl;
 
 	return responseStream.str();
 }
