@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileHandler.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:58:26 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 02:15:59 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 14:43:57 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ std::string getMimeType(const std::string &filePath)
 
 std::string normalizePath(const std::string &path)
 {
-	std::vector<std::string> parts = utility::splitStringByDelim(path, '/');
+	std::vector<std::string> parts = utl::splitStringByDelim(path, '/');
 	std::vector<std::string> stack;
 
 	for (size_t i = 0; i < parts.size(); ++i)

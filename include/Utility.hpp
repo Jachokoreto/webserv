@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utility.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 22:42:52 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 02:19:00 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 14:49:58 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <sstream>
 #include <sys/stat.h>
 
-namespace utility
+namespace utl
 {
 	/**
 	 * Splits a given string into a vector of substrings based on delimiter (either space or newline).
@@ -28,8 +28,23 @@ namespace utility
 	 * @return A vector of substrings extracted from the input string.
 	 */
 	std::vector<std::string> splitStringByDelim(const std::string &str, const char delim);
-	
+
 	bool isDirectory(const std::string &path);
+
+	/**
+	 * Converts a value of any type that supports the output stream operator (operator<<)
+	 * to a std::string. This function template leverages std::ostringstream to perform
+	 * the conversion, ensuring type safety and automatic handling of different data types.
+	 * @param value The value of type T to be converted into a string.
+	 * @return The string representation of the input value.
+	 */
+	template <typename T>
+	std::string toString(T value)
+	{
+		std::ostringstream oss;
+		oss << value;
+		return oss.str();
+	}
 }
 
 #endif

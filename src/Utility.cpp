@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Utility.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 22:45:19 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 02:19:03 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 14:49:36 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Utility.hpp"
 
-std::vector<std::string> utility::splitStringByDelim(const std::string &str, const char delim)
+std::vector<std::string> utl::splitStringByDelim(const std::string &str, const char delim)
 {
 	std::vector<std::string> result;
 	std::istringstream stream(str);
@@ -33,7 +33,7 @@ std::vector<std::string> utility::splitStringByDelim(const std::string &str, con
 	return result;
 }
 
-bool utility::isDirectory(const std::string &path)
+bool utl::isDirectory(const std::string &path)
 {
 	struct stat statbuf;
 	if (stat(path.c_str(), &statbuf) != 0)

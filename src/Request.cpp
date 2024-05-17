@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 23:19:09 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 04:51:10 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 14:43:57 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,8 @@ void Request::setMethod(const std::string &method)
 
 Request::Request(const std::string &requestString)
 {
-	std::vector<std::string> split = utility::splitStringByDelim(requestString, '\n');
-	std::vector<std::string> requestLine = utility::splitStringByDelim(split[0], ' ');
+	std::vector<std::string> split = utl::splitStringByDelim(requestString, '\n');
+	std::vector<std::string> requestLine = utl::splitStringByDelim(split[0], ' ');
 	const std::string &method = requestLine[0];
 	if (std::find(Request::methodVector.begin(), Request::methodVector.end(), method) == Request::methodVector.end())
 		throw Request::NotAllowedException("Invalid method");
@@ -81,14 +81,14 @@ Request::Request(const std::string &requestString)
 
 // Request::Request() {}
 
-Request::Request(Request const &src){
+Request::Request(Request const &src)
+{
 	this->_method = src._method;
 	this->_uri = src._uri;
 	this->_version = src._version;
 	this->_headers = src._headers;
 	this->_body = src._body;
 }
-
 
 Request::~Request() {}
 
