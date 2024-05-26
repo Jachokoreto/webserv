@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:54:29 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 16:55:24 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/17 22:38:16 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <string>
 #include <map>
 
+#include "HttpMethods.h"
 #include "RequestHandler.hpp"
 #include "Utility.hpp"
 
