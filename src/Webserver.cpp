@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/23 16:06:07 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/17 13:15:38 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/18 23:24:30 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,9 @@ void Webserver::configureSelect(void)
     for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); it++)
     {
         FD_SET((*it)->fd, &_readFds);
-        FD_SET((*it)->fd, &_writeFds);
+        if ((*it)->hasResponse()) {
+            FD_SET((*it)->fd, &_writeFds);
+        }
         if ((*it)->fd > _maxFd)
         {
             _maxFd = (*it)->fd;
@@ -153,36 +155,39 @@ void Webserver::handleConnections()
 
     for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); )
     {
-        bool close_conn = false;
         int fd = (*it)->fd;
         if (FD_ISSET(fd, &_readFds))
         {
-            // handle read
-            // close_conn = _connections[*it].readData();
             if ((*it)->readData() == false)
             {
-                close_conn = true;
-                close((*it)->fd);
+                _logger.info("close connection after read failed");
+                // close_conn = true;
+                close(fd);
+                FD_CLR(fd, &_readFds);
+                FD_CLR(fd, &_writeFds);
                 delete *it;
                 it = _connections.erase(it);
                 continue;
             }
         }
-        if (FD_ISSET((*it)->fd, &_writeFds))
+
+        if (FD_ISSET(fd, &_writeFds))
         {
             // handle write
             if ((*it)->sendData())
             {
-                close_conn = true;
-                close((*it)->fd);
+                // !BUG tester failed when ran the second time
+                // FATAL ERROR ON LAST TEST: read tcp 127.0.0.1:49868->127.0.0.1:80: 
+                _logger.info("close connection after send");
+                close(fd);
+                FD_CLR(fd, &_readFds);
+                FD_CLR(fd, &_writeFds);
                 delete *it;
                 it = _connections.erase(it);
+                continue;
             }
         }
-        if (close_conn == false)
-        {
-            ++it;
-        }
+        ++it;
     }
 }
 

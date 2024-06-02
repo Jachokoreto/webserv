@@ -36,7 +36,7 @@ void testWebserver(void)
 
     
 
-    configParser.createServerBlocksFromConf("conf/default.conf", requestHandlers,  serverBlocks);
+    configParser.createServerBlocksFromConf("conf/tester.conf", requestHandlers,  serverBlocks);
     for (std::vector<ServerBlock*>::iterator it = serverBlocks.begin(); it != serverBlocks.end(); it++)
     {
         configParser.displayConfig(**it);

@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:50:55 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 17:11:23 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/17 23:32:29 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ private:
 	routeTableMap _routeTable;
 	requestHandlerVec *_requestHandlers;
 	std::string _projectDir;
+	Logger _logger;
 };
 
 #endif

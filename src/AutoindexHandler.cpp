@@ -46,6 +46,7 @@ bool AutoindexHandler::handleRequest(const Request &req, Response &res, RouteDet
 	std::string listingHtml;
 
 	// check if request is for autoindex
+	_logger.info(fullPath);
 	if (!utl::isDirectory(fullPath)) {
 		_logger.log("Not a directory");
 		return false;

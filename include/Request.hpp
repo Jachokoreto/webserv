@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 02:00:28 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 16:39:13 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/18 23:28:31 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,14 @@
 
 #include "HttpMessage.hpp"
 #include "Utility.hpp"
+#include "Logger.hpp"
 
 class Request : public HttpMessage
 {
 private:
 	std::string _method;
 	std::string _uri;
+	Logger _logger;
 
 public:
 	Request();

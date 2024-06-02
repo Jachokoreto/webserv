@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 19:45:34 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/17 14:44:16 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/05/18 23:57:13 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,9 @@
 #include "ServerBlock.hpp"
 #include "Utility.hpp"
 
-#define BUFFER_SIZE 30000
+#include "macro.h"
+
+#define BUFFER_SIZE 3000
 
 class Connection
 {
@@ -43,6 +45,7 @@ public:
 
 	bool readData(void);
 	bool sendData(void);
+	bool hasResponse(void);
 
 private:
 	// fd_set* _master;
@@ -54,6 +57,7 @@ private:
 	ServerBlock *_serverBlock;
 	static int _connectionCount;
 	Logger _logger;
+	std::string _buffer;
 	// int _index;
 };
 

@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:58:26 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 17:16:56 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/20 13:59:39 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ bool StaticFileHandler::handleRequest(const Request &request, Response &response
 {
 	(void)request; 
 	(void)routeDetail;
+	std::cout << "StaticFileHandler::handleRequest" << std::endl;
 	struct stat path_stat;
 	stat(fullPath.c_str(), &path_stat);
 	if (!S_ISREG(path_stat.st_mode)) // Check if it's not a regular file
@@ -53,14 +54,16 @@ bool StaticFileHandler::handleRequest(const Request &request, Response &response
 		{
 			// Handle directory case: serve an index file to list directory contents
 			// fullPath += "/index.html";
-			stat(fullPath.c_str(), &path_stat);
-			if (!S_ISREG(path_stat.st_mode))
-			{
-				// Check again in case default file is not a regular file / not available
-				response.setStatusCode(403);
-				response.setBody("Reason: Directory access is not allowed!");
-				return true;
-			}
+			// stat(fullPath.c_str(), &path_stat);
+			// if (!S_ISREG(path_stat.st_mode))
+			// {
+			// 	// Check again in case default file is not a regular file / not available
+			// 	// response.setStatusCode(403);
+			// 	// response.setBody("Reason: Directory access is not allowed!");
+			// 	response.errorResponse(403, "Directory access is not allowed");
+			// 	return true;
+			// }
+			return false;
 		}
 		else
 			return false;

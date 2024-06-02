@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 23:19:09 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 17:11:40 by jatan            ###   ########.fr       */
+/*   Updated: 2024/05/18 23:36:23 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,14 +108,16 @@ void Request::setMethod(const std::string &method)
 	this->_method = method;
 }
 
-Request::Request(const std::string &requestString)
+Request::Request(const std::string &requestString): _logger(Logger("Request"))
 {
+	if (requestString.empty()) return ;
 	std::vector<std::string> split = utl::splitStringByDelim(requestString, '\n');
 	std::vector<std::string> requestLine = utl::splitStringByDelim(split[0], ' ');
 	const std::string &method = requestLine[0];
-	if (std::find(Request::methodVector.begin(), Request::methodVector.end(), method) == Request::methodVector.end())
-		throw Request::NotAllowedException("Invalid method");
+	// if (std::find(Request::methodVector.begin(), Request::methodVector.end(), method) == Request::methodVector.end())
+	// 	throw Request::NotAllowedException("Invalid method");
 	this->setMethod(method);
+	_logger.info(split[0]);
 	this->setUri(sanitizeUri(requestLine[1]));
 	this->_version = "HTTP/1.1";
 
@@ -140,7 +142,7 @@ Request::Request(const std::string &requestString)
 
 // Request::Request() {}
 
-Request::Request(Request const &src)
+Request::Request(Request const &src): _logger(Logger("Request"))
 {
 	this->_method = src._method;
 	this->_uri = src._uri;

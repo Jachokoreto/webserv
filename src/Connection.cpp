@@ -6,27 +6,29 @@ int Connection::_connectionCount = 0;
 ** ------------------------- CONSTRUCTOR & DESTRUCTOR --------------------------
 */
 
-Connection::Connection(int fd, ServerBlock *serverBlock) : fd(fd), _serverBlock(serverBlock), _logger(Logger("Connection"))
+Connection::Connection(int fd, ServerBlock *serverBlock):  fd(fd), _serverBlock(serverBlock), _logger(Logger("Connection"))
 {
 	// this->_index = this->_connectionCount++;
 	// std::stringstream ss;
 	// ss << "created " << this->_index;;
 	// this->_logger.log(ss.str());
 	// std::cout << this->_requestString << std::endl;
-	this->_logger.log("Connection created at fd " + utl::toString(fd));
+	_logger.log("Connection created at fd " + utl::toString(fd));
 	_request = NULL;
 	_response = NULL;
+	_buffer = "";
 }
 
 // Connection::Connection(): _logger(Logger("Connection")), _serverBlock()
 // {
 // }
 
-Connection::Connection(const Connection &src) : _logger(Logger("Connection"))
+Connection::Connection(const Connection &src): _logger(Logger("Connection"))
 {
 	_serverBlock = src._serverBlock;
 	_request = src._request;
 	_response = src._response;
+	_buffer = src._buffer;
 	// this->_index = this->_connectionCount++;
 	fd = src.fd;
 }
@@ -51,7 +53,7 @@ Connection &Connection::operator=(const Connection &rhs)
 	{
 		// Since _serverBlock is a reference, it cannot be reassigned
 		// Logger can be reinitialized or reconfigured
-		_logger = Logger("Connection");
+		_logger = rhs._logger;
 		_serverBlock = rhs._serverBlock;
 		// Ensure other member variables like _request and _response are copied correctly
 		_request = rhs._request;
@@ -89,9 +91,16 @@ bool Connection::readData()
 		return false; // Connection closed by client
 	}
 	buf[bytes_read] = '\0';
+	_logger.info(std::string(buf));
+	_buffer += std::string(buf);
+	if (_buffer.find("\r\n\r\n") == std::string::npos)
+	{
+		_logger.log("Request not complete yet");
+		return true;
+	}
 	try
 	{
-		_request = new Request(buf);
+		_request = new Request(_buffer);
 		_response = new Response();
 		_serverBlock->router.routeRequest(*_request, *_response);
 	}
@@ -105,14 +114,10 @@ bool Connection::readData()
 
 bool Connection::sendData(void)
 {
-	if (_response == NULL || _request == NULL)
-	{
-		return false;
-	}
-	this->_logger.log("Sending data");
 	const std::string resString = _response->toString();
 	if (resString.empty())
 	{
+		_logger.log("Repond not ready yet");
 		return false;
 	}
 	ssize_t bytes_sent = send(fd, resString.c_str(), resString.length(), 0);
@@ -121,12 +126,17 @@ bool Connection::sendData(void)
 		perror("send");
 		return false;
 	}
-	this->_logger.log("Data sent: " + resString + " //\nto fd " + utl::toString(fd));
-	delete _request;
-	_request = NULL;
-	delete _response;
-	_response = NULL;
+	if ((unsigned long)bytes_sent < resString.length())
+	{
+		_response->truncateResponse(bytes_sent);
+	}
+	_logger.log("sent data");
 	return true;
+}
+
+bool Connection::hasResponse()
+{
+	return _response != NULL;
 }
 
 /*
