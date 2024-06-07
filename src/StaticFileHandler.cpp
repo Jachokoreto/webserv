@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:58:26 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/20 13:59:39 by jatan            ###   ########.fr       */
+/*   Updated: 2024/06/07 19:38:52 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,47 @@ std::string getMimeType(const std::string &filePath)
 			return "image/jpeg";
 		else if (ext == ".gif")
 			return "image/gif";
-		else
-			return "application/octet-stream"; // Default MIME type
 	}
+	return "application/octet-stream"; // Default MIME type
+}
+
+bool serveFile(const std::string &filePath, Response &response)
+{
+	std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary);
+	if (!file)
+	{
+		response.errorResponse(404, "File not found");
+		return true;
+	}
+	std::string content(std::istreambuf_iterator<char>(file), (std::istreambuf_iterator<char>()));
+	file.close();
+	response.setStatusCode(200);
+	response.setBody(content);
+	response.addHeader("Content-Type", getMimeType(filePath));
+	return true;
+}
+
+bool handleGetRequest(const std::string &path, const struct stat &path_stat, const Request &request, Response &response, const RouteDetails &routeDetail)
+{
+	if (S_ISDIR(path_stat.st_mode) && !routeDetail.index.empty())
+		return serveFile(path + "/" + routeDetail.index, response);
+	else if (S_ISREG(path_stat.st_mode))
+		return serveFile(path, response);
 	else
-		return "application/octet-stream"; // Default MIME type
+		return false;
+}
+
+bool handleDeleteRequest(const std::string &path, const struct stat &path_stat, Response &response)
+{
+	if (S_ISREG(path_stat.st_mode))
+	{
+		if (remove(path.c_str()) == 0)
+			response.setStatusCode(202);
+		else
+			response.errorResponse(500, "Unable to delete file");
+		return true;
+	}
+	return false;
 }
 
 StaticFileHandler::StaticFileHandler() {}
@@ -47,42 +83,18 @@ bool StaticFileHandler::handleRequest(const Request &request, Response &response
 	(void)routeDetail;
 	std::cout << "StaticFileHandler::handleRequest" << std::endl;
 	struct stat path_stat;
-	stat(fullPath.c_str(), &path_stat);
-	if (!S_ISREG(path_stat.st_mode)) // Check if it's not a regular file
+	if (stat(fullPath.c_str(), &path_stat) != 0)
 	{
-		if (S_ISDIR(path_stat.st_mode))
-		{
-			// Handle directory case: serve an index file to list directory contents
-			// fullPath += "/index.html";
-			// stat(fullPath.c_str(), &path_stat);
-			// if (!S_ISREG(path_stat.st_mode))
-			// {
-			// 	// Check again in case default file is not a regular file / not available
-			// 	// response.setStatusCode(403);
-			// 	// response.setBody("Reason: Directory access is not allowed!");
-			// 	response.errorResponse(403, "Directory access is not allowed");
-			// 	return true;
-			// }
-			return false;
-		}
-		else
-			return false;
-	}
-
-	std::cout << fullPath << std::endl;
-
-	std::ifstream file(fullPath.c_str(), std::ios::in | std::ios::binary);
-	if (!file)
-	{
-		response.errorResponse(404, "File not found");
+		response.errorResponse(404, "Resource not found");
 		return true;
 	}
 
-	std::string content(std::istreambuf_iterator<char>(file), (std::istreambuf_iterator<char>()));
-	file.close();
-
-	response.setStatusCode(200);
-	response.setBody(content);
-	response.addHeader("Content-Type", getMimeType(fullPath));
-	return true;
+	if (request.getMethod() == "GET" && (routeDetail.allowedMethods & GET))
+		return handleGetRequest(fullPath, path_stat, request, response, routeDetail);
+	else if (request.getMethod() == "POST" && (routeDetail.allowedMethods & POST))
+		return true;
+	else if (request.getMethod() == "DELETE" && (routeDetail.allowedMethods & DELETE))
+		return handleDeleteRequest(fullPath, path_stat, response);
+	else
+		return false;
 }
