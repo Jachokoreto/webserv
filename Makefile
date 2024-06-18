@@ -1,16 +1,15 @@
 NAME = webserv
 
-GCC = g++ -Wall -Wextra -Werror
-
+GCC = c++ -Wall -Wextra -Werror -fsanitize=address -g3 --std=c++98  -fdiagnostics-color=always
 VALGRIND = valgrind --leak-check=full \
          --show-leak-kinds=all \
          --verbose \
          --log-file=valgrind-out.txt \
          --track-origins=yes \
 
-INC = -Iinclude
+INC = -Iinclude -Isrc
 
-TEST_SRC = $(wildcard test/*.c)
+# TEST_SRC = $(wildcard test/*.c)
 
 # Put your src directory here
 SRC_DIRS = src

@@ -30,7 +30,11 @@
 *.exe
 *.out
 *.app
+
+*.dSYM
 webserv
+obj
+
 
 # vscode
 .vscode
