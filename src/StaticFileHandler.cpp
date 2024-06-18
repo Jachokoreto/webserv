@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:58:26 by chenlee           #+#    #+#             */
-/*   Updated: 2024/06/18 17:08:46 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/06/18 23:15:57 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,20 +42,34 @@ bool serveFile(const std::string &filePath, Response &response)
         response.errorResponse(404, "File not found");
         return true;
     }
-    std::string content(std::istreambuf_iterator<char>(file), (std::istreambuf_iterator<char>()));
+
+    // Use a stringstream to read the file into a string
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    // Convert the stringstream into a string
+    std::string content = buffer.str();
+
     file.close();
+
     response.setStatusCode(200);
-    response.setBody(content);
+    response.setBody(content + "\n");
+    response.addHeader("Content-Length", utl::toString(content.length() + 1));
     response.addHeader("Content-Type", getMimeType(filePath));
+    file.close();
     return true;
 }
 
 bool handleGetRequest(const Request &request, Response &response, const RouteDetails &routeDetail, const std::string &fullPath, const struct stat &path_stat)
 {
+    (void)request;
     if (S_ISDIR(path_stat.st_mode) && !routeDetail.index.empty())
+    {
         return serveFile(fullPath + "/" + routeDetail.index, response);
+    }
     else if (S_ISREG(path_stat.st_mode))
+    {
         return serveFile(fullPath, response);
+    }
     else
         return false;
 }
@@ -72,6 +86,7 @@ std::string getCurrentTime()
 
 bool handlePostRequest(const Request &request, Response &response, const RouteDetails &RouteDetails, const std::string &fullPath)
 {
+    (void)RouteDetails;
     std::ofstream file(fullPath.c_str(), std::ios::out | std::ios::binary);
     if (!file)
         response.errorResponse(500, "Failed to open file.");
@@ -82,13 +97,16 @@ bool handlePostRequest(const Request &request, Response &response, const RouteDe
             response.errorResponse(500, "Failed to save file.");
         else
         {
+            std::string body = "File uploaded successfully.";
             response.setStatusCode(200);
-            response.setBody("File uploaded successfully.");
+            response.setBody(body);
             response.addHeader("Date", getCurrentTime());
             response.addHeader("Content-Type", "text/html");
+            response.addHeader("Content-Length", utl::toString(body.length() + 1));
         }
         file.close();
     }
+    return true;
 }
 
 bool handleDeleteRequest(Response &response, const std::string &fullPath, const struct stat &path_stat)

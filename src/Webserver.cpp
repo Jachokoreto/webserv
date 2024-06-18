@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserver.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/23 16:06:07 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/18 23:24:30 by jatan            ###   ########.fr       */
+/*   Updated: 2024/06/18 23:15:45 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,10 @@
  * @param hostname The hostname to bind to.
  * @param server The name of the server.
  */
-Webserver::Webserver(std::vector<ServerBlock*>& serverBlocks) : _logger(Logger("Webserver"))
+Webserver::Webserver(std::vector<ServerBlock *> &serverBlocks) : _logger(Logger("Webserver"))
 {
 
-    for (std::vector<ServerBlock*>::iterator it = serverBlocks.begin(); it != serverBlocks.end(); it++)
+    for (std::vector<ServerBlock *>::iterator it = serverBlocks.begin(); it != serverBlocks.end(); it++)
     {
         setupServerSocket(**it);
     }
@@ -30,12 +30,12 @@ Webserver::Webserver(std::vector<ServerBlock*>& serverBlocks) : _logger(Logger("
 
 Webserver::~Webserver()
 {
-    for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); it++)
+    for (std::vector<Connection *>::iterator it = _connections.begin(); it != _connections.end(); it++)
     {
         delete *it;
     }
     _connections.clear();
-    for (std::map<int, ServerBlock*>::iterator it = _serverBlocks.begin(); it != _serverBlocks.end(); it++)
+    for (std::map<int, ServerBlock *>::iterator it = _serverBlocks.begin(); it != _serverBlocks.end(); it++)
     {
         delete it->second;
     }
@@ -43,8 +43,10 @@ Webserver::~Webserver()
     this->_logger.log("Webserver cleaned up");
 }
 
-void Webserver::start() {
-    while (1) {
+void Webserver::start()
+{
+    while (1)
+    {
         configureSelect();
         int activity = select(_maxFd + 1, &_readFds, &_writeFds, NULL, NULL);
 
@@ -55,10 +57,9 @@ void Webserver::start() {
         }
         handleConnections();
     }
-
 }
 
-void Webserver::setupServerSocket(ServerBlock& serverBlock)
+void Webserver::setupServerSocket(ServerBlock &serverBlock)
 {
     int server_socket;
 
@@ -96,7 +97,6 @@ void Webserver::setupServerSocket(ServerBlock& serverBlock)
     setNonBlocking(server_socket);
     std::cout << serverBlock.listen << std::endl;
     _serverBlocks[server_socket] = &serverBlock;
-
 }
 
 void Webserver::setNonBlocking(int sock_fd)
@@ -121,7 +121,7 @@ void Webserver::configureSelect(void)
     FD_ZERO(&_writeFds);
     _maxFd = 0;
 
-    for (std::map<int, ServerBlock*>::iterator it = _serverBlocks.begin(); it != _serverBlocks.end(); it++)
+    for (std::map<int, ServerBlock *>::iterator it = _serverBlocks.begin(); it != _serverBlocks.end(); it++)
     {
         FD_SET(it->first, &_readFds);
         if (it->first > _maxFd)
@@ -130,10 +130,11 @@ void Webserver::configureSelect(void)
         }
     }
 
-    for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); it++)
+    for (std::vector<Connection *>::iterator it = _connections.begin(); it != _connections.end(); it++)
     {
         FD_SET((*it)->fd, &_readFds);
-        if ((*it)->hasResponse()) {
+        if ((*it)->hasResponse())
+        {
             FD_SET((*it)->fd, &_writeFds);
         }
         if ((*it)->fd > _maxFd)
@@ -145,7 +146,7 @@ void Webserver::configureSelect(void)
 
 void Webserver::handleConnections()
 {
-    for (std::map<int, ServerBlock*>::iterator it = _serverBlocks.begin(); it != _serverBlocks.end(); it++)
+    for (std::map<int, ServerBlock *>::iterator it = _serverBlocks.begin(); it != _serverBlocks.end(); it++)
     {
         if (FD_ISSET(it->first, &_readFds))
         {
@@ -153,7 +154,7 @@ void Webserver::handleConnections()
         }
     }
 
-    for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); )
+    for (std::vector<Connection *>::iterator it = _connections.begin(); it != _connections.end();)
     {
         int fd = (*it)->fd;
         if (FD_ISSET(fd, &_readFds))
@@ -177,7 +178,7 @@ void Webserver::handleConnections()
             if ((*it)->sendData())
             {
                 // !BUG tester failed when ran the second time
-                // FATAL ERROR ON LAST TEST: read tcp 127.0.0.1:49868->127.0.0.1:80: 
+                // FATAL ERROR ON LAST TEST: read tcp 127.0.0.1:49868->127.0.0.1:80:
                 _logger.info("close connection after send");
                 close(fd);
                 FD_CLR(fd, &_readFds);
@@ -191,7 +192,7 @@ void Webserver::handleConnections()
     }
 }
 
-void Webserver::acceptNewConnection(int server_socket, ServerBlock* serverBlock)
+void Webserver::acceptNewConnection(int server_socket, ServerBlock *serverBlock)
 {
     struct sockaddr_in client_address;
     socklen_t client_address_len = sizeof(client_address);
