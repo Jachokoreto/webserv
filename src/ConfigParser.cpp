@@ -100,6 +100,8 @@ void ConfigParser::parseLocationConfig(std::stringstream& ss, std::string& key, 
                 return;
             }
         }
+    } else if (key == "cgi_pass") {
+        ss >> routeDetails.cgiPass;
     }
 }
 

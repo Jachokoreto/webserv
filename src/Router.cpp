@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:58:14 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/18 00:06:27 by jatan            ###   ########.fr       */
+/*   Updated: 2024/06/19 00:15:58 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,4 +101,16 @@ void Router::display(void) const
 	}
 }
 
-//  /jaclyn/bombom.html 
+// std::string checkCGI(std::string &fullPath) {
+// 		 // Find the last occurrence of the dot character in the path
+//     std::string::size_type dot_pos = fullPath.rfind('.');
+    
+//     // If no dot is found or the dot is at the beginning of the string, return an empty string
+//     if (dot_pos == std::string::npos || dot_pos == 0) {
+//         return "";
+//     }
+// 	std::string extension = fullPath.substr(dot_pos + 1);
+
+// }
+
+// //  /jaclyn/bombom.html 

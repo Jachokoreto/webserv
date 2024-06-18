@@ -1,6 +1,7 @@
 #include "Webserver.hpp"
 #include "ConfigParser.hpp"
 #include "AutoindexHandler.hpp"
+#include "CGIHandler.hpp"
 
 void testRouter(void)
 {
@@ -23,6 +24,19 @@ void testAutoindex(void)
     std::cout << res.toString() << std::endl;
 }
 
+void testCGI(void)
+{
+    Request req("POST /youpi.bla HTTP/1.1\r\n\r\n");
+    Response res;
+    CGIHandler cgiHandler;
+    RouteDetails routeDetails;
+    routeDetails.allowedMethods = POST;
+    routeDetails.cgiPass = "CGI-tester";
+    std::cout<<"testCGI"<<std::endl;
+    cgiHandler.handleRequest(req, res, routeDetails, "/Users/user/sidess/webserv/YoupiBanane/youpi.bla");
+    std::cout << res.toString() << std::endl;
+}
+
 void testWebserver(void)
 {
     // WebServer webserver(PORT, "localhost", "Webserver");
@@ -32,6 +46,7 @@ void testWebserver(void)
     std::vector<RequestHandler*> requestHandlers;
     requestHandlers.push_back(new AutoindexHandler());
     requestHandlers.push_back(new StaticFileHandler());
+    requestHandlers.push_back(new CGIHandler());
     std::vector<ServerBlock*> serverBlocks;
 
     
@@ -50,5 +65,6 @@ int main(void)
 {
 	// testRouter();
 	// testAutoindex();
-	testWebserver();
+    testCGI();
+	// testWebserver();
 }

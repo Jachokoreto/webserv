@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:58:26 by chenlee           #+#    #+#             */
-/*   Updated: 2024/06/07 19:38:52 by jatan            ###   ########.fr       */
+/*   Updated: 2024/06/18 21:14:15 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ bool serveFile(const std::string &filePath, Response &response)
 
 bool handleGetRequest(const std::string &path, const struct stat &path_stat, const Request &request, Response &response, const RouteDetails &routeDetail)
 {
+	(void)request;
 	if (S_ISDIR(path_stat.st_mode) && !routeDetail.index.empty())
 		return serveFile(path + "/" + routeDetail.index, response);
 	else if (S_ISREG(path_stat.st_mode))

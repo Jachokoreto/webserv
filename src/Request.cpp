@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 23:19:09 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/18 23:36:23 by jatan            ###   ########.fr       */
+/*   Updated: 2024/06/18 18:55:44 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,8 @@ const std::string Request::getMethod() const
 	return this->_method;
 }
 
+// Get the requested resource from the URI
+// ie. HTTP/1.1 GET /path/to/resource -> /path/to/resource
 const std::string Request::getRoute() const
 {
 	return this->_uri.substr(0, this->_uri.find('/', 1));
