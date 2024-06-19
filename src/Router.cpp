@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:58:14 by chenlee           #+#    #+#             */
-/*   Updated: 2024/06/19 16:17:47 by jatan            ###   ########.fr       */
+/*   Updated: 2024/06/19 16:23:54 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,14 @@ bool checkAllowedMethods(std::string reqMethods, int allowedMethods)
 RouteDetails *getRouteDetails(const std::string &path, const std::map<std::string, RouteDetails *> &routeTable)
 {
 	const std::string trim = path.substr(0, path.find('/', 1));
-	const std::map<std::string, RouteDetails *>::const_iterator routeIt = routeTable.find(trim);
+	const std::string extension = path.substr(path.find_last_of('.'));
+	std::map<std::string, RouteDetails *>::const_iterator routeIt;
+	routeIt = routeTable.find(extension);
+	if (routeIt != routeTable.end())
+	{
+		return routeIt->second;
+	}
+	routeIt = routeTable.find(trim);
 	if (routeIt != routeTable.end())
 	{
 		return routeIt->second;
