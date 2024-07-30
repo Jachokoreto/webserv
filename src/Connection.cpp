@@ -76,7 +76,6 @@ std::ostream &operator<<(std::ostream &o, Connection const &i)
 
 bool Connection::readData()
 {
-	this->_logger.log("Read data");
 	char buf[BUFFER_SIZE]; // buffer for client data
 	memset(buf, 0, BUFFER_SIZE);
 	ssize_t bytes_read = read(fd, buf, BUFFER_SIZE - 1);
@@ -91,11 +90,9 @@ bool Connection::readData()
 		return false; // Connection closed by client
 	}
 	buf[bytes_read] = '\0';
-	_logger.info(std::string(buf));
 	_buffer += std::string(buf);
 	if (_buffer.find("\r\n\r\n") == std::string::npos)
 	{
-		_logger.log("Request not complete yet");
 		return true;
 	}
 	try
@@ -106,7 +103,7 @@ bool Connection::readData()
 	}
 	catch (const std::exception &e)
 	{
-		_logger.error(e.what());
+		_logger.error("Errro at routing request: " + std::string(e.what()));
 		return false;
 	}
 	return true;
@@ -117,7 +114,7 @@ bool Connection::sendData(void)
 	const std::string resString = _response->toString();
 	if (resString.empty())
 	{
-		_logger.log("Repond not ready yet");
+		_logger.log("Response not ready yet");
 		return false;
 	}
 	ssize_t bytes_sent = send(fd, resString.c_str(), resString.length(), 0);

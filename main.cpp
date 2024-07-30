@@ -44,9 +44,9 @@ void testWebserver(void)
     // webserver.start();
     ConfigParser configParser;
     std::vector<RequestHandler*> requestHandlers;
+    requestHandlers.push_back(new CGIHandler());
     requestHandlers.push_back(new AutoindexHandler());
     requestHandlers.push_back(new StaticFileHandler());
-    requestHandlers.push_back(new CGIHandler());
     std::vector<ServerBlock*> serverBlocks;
 
     
@@ -65,6 +65,6 @@ int main(void)
 {
 	// testRouter();
 	// testAutoindex();
-    testCGI();
-	// testWebserver();
+    // testCGI();
+	testWebserver();
 }

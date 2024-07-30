@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:50:55 by chenlee           #+#    #+#             */
-/*   Updated: 2024/06/07 19:37:56 by jatan            ###   ########.fr       */
+/*   Updated: 2024/06/21 00:31:17 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ public:
 	void assignHandlers(requestHandlerVec &handlers);
 
 private:
+	RouteDetails *getRouteDetails(const std::string &path, const std::map<std::string, RouteDetails *> &routeTable);
 	routeTableMap _routeTable;
 	requestHandlerVec *_requestHandlers;
 	std::string _projectDir;

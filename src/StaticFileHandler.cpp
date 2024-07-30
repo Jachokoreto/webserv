@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:58:26 by chenlee           #+#    #+#             */
-/*   Updated: 2024/06/19 15:05:42 by jatan            ###   ########.fr       */
+/*   Updated: 2024/06/21 00:47:25 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,6 +136,7 @@ bool StaticFileHandler::handleRequest(const Request &request, Response &response
     struct stat path_stat;
     if (stat(fullPath.c_str(), &path_stat) != 0)
     {
+        std::cout << fullPath << std::endl;
         response.errorResponse(404, "Resource not found");
         return true;
     }
