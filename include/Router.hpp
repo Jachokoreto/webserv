@@ -38,7 +38,7 @@ public:
 	void assignHandlers(requestHandlerVec &handlers);
 
 private:
-	RouteDetails *getRouteDetails(const std::string &path, const std::map<std::string, RouteDetails *> &routeTable);
+	RouteDetails *getRouteDetails(const std::string &path, const routeTableMap &routeTable);
 	routeTableMap _routeTable;
 	requestHandlerVec *_requestHandlers;
 	std::string _projectDir;

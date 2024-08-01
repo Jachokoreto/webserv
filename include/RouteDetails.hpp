@@ -19,10 +19,12 @@ class RouteDetails
 {
 public:
 	RouteDetails();
+	RouteDetails(std::string route);
 	RouteDetails(bool autoindex, std::string index, std::string root, int allowedMethods);
 	RouteDetails(bool autoindex, std::string index, std::string root, int allowedMethods, std::string cgiPass);
 	~RouteDetails();
 
+	std::string route;
 	bool autoindex;
 	std::string index;
 	std::string root;

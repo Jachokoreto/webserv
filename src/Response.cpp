@@ -22,12 +22,12 @@ Response::Response() : _logger(Logger("Response"))
     statusMap[404] = "Not Found";
     statusMap[405] = "Method not allowed";
     statusMap[500] = "Internal Server Error";
-    std::cout << "Response constructor" << std::endl;
+    // std::cout << "Response constructor" << std::endl;
 }
 
 Response::~Response()
 {
-    std::cout << "Response destructor" << std::endl;
+    // std::cout << "Response destructor" << std::endl;
 }
 
 void Response::setStatusCode(int status)

@@ -34,6 +34,8 @@ Router::~Router()
 void Router::addRoute(const std::string &path, RouteDetails *routeDetail)
 {
 	this->_routeTable[path] = routeDetail;
+	std::cout << "methods: " << routeDetail->allowedMethods << std::endl;
+	
 }
 
 void Router::assignHandlers(requestHandlerVec &handlers)
@@ -58,39 +60,48 @@ bool checkAllowedMethods(std::string reqMethods, int allowedMethods)
 	return false;
 }
 
-RouteDetails *Router::getRouteDetails(const std::string &path, const std::map<std::string, RouteDetails *> &routeTable)
+RouteDetails *Router::getRouteDetails(const std::string &path, const routeTableMap &routeTable)
 {
-	std::map<std::string, RouteDetails *>::const_iterator routeIt;
-	try
-	{
-		size_t toFind = 1;
-		while (toFind != std::string::npos)
-		{
-			toFind = path.find('/', toFind);
-			std::string route;
-			if (toFind != std::string::npos)
-			{
-				route = path.substr(0, toFind);
-			}
-			else
-			{
-				route = "/";
-			}
-			this->_logger.warning("toFind: " + route);
-			routeIt = routeTable.find(route);
-			if (routeIt != routeTable.end())
-			{
-				return routeIt->second;
-			} else if (route == "/") {
-				break;
-			}
+	RouteDetails *ret;
+
+	for (routeTableMap::const_iterator it = routeTable.begin(); it != routeTable.end(); ++it) {
+		if (path.find(it->first) != std::string::npos) {
+			ret = it->second;
 		}
 	}
-	catch (std::exception &e)
-	{
-		this->_logger.log("Error: " + std::string(e.what()));
-	}
-	return NULL;
+	return ret;
+	// routeTableMap::const_iterator routeIt;
+	// try
+	// {
+		// size_t toFind = 1;
+		// while (toFind != std::string::npos)
+		// {
+		// 	toFind = path.find('/', toFind);
+		// 	std::string route;
+		// 	if (toFind != std::string::npos)
+		// 	{
+		// 		route = path.substr(0, toFind);
+		// 	}
+		// 	else
+		// 	{
+		// 		route = "/";
+		// 	}
+		// 	this->_logger.warning("toFind: " + route);
+		// 	routeIt = routeTable.find(route);
+		// 	if (routeIt != routeTable.end())
+		// 	{
+		// 		return routeIt->second;
+		// 	} else if (route == "/") {
+		// 		break;
+		// 	}
+		// }
+		
+	// }
+	// catch (std::exception &e)
+	// {
+	// 	this->_logger.log("Error: " + std::string(e.what()));
+	// }
+	// return NULL;
 }
 
 void Router::routeRequest(const Request &request, Response &response)
@@ -100,6 +111,7 @@ void Router::routeRequest(const Request &request, Response &response)
 	RouteDetails *routeDetail = getRouteDetails(request.getUri(), this->_routeTable);
 	if (routeDetail)
 	{
+		this->_logger.log("Handling route detail: " + routeDetail->route);
 		if (checkAllowedMethods(request.getMethod(), routeDetail->allowedMethods) == false)
 		{
 			response.errorResponse(405, "Method not allowed");

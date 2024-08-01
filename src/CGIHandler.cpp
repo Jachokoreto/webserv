@@ -33,6 +33,7 @@ bool CGIHandler::handleRequest(const Request &req, Response &res, RouteDetails &
 
 	if (routeDetails.cgiPass.empty())
 	{
+		this->_logger.info("No cgi pass set");
 		return false;
 	}
 	if (pipe(c) == -1)

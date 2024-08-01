@@ -46,7 +46,7 @@ void ConfigParser::createServerBlocksFromConf(const std::string& filename, std::
                 return;
             }
             currentRoute = value;
-            routeDetails = new RouteDetails();
+            routeDetails = new RouteDetails(value);
             inLocationBlock = true;
             continue;
         } else if (key == "}") {
