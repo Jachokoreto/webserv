@@ -52,10 +52,10 @@ bool serveFile(const std::string &filePath, Response &response)
     file.close();
 
     response.setStatusCode(200);
-    response.setBody(content + "\n");
-    response.addHeader("Content-Length", utl::toString(content.length() + 1));
+    response.setBody(content);
+    // response.addHeader("Content-Length", utl::toString(content.length() + 1));
     response.addHeader("Content-Type", getMimeType(filePath));
-    file.close();
+    // file.close();
     return true;
 }
 
@@ -125,6 +125,14 @@ bool handleDeleteRequest(Response &response, const std::string &fullPath, const 
 StaticFileHandler::StaticFileHandler() {}
 
 StaticFileHandler::~StaticFileHandler() {}
+
+bool StaticFileHandler::checkIfHandle(const Request &request, RouteDetails &routeDetail, const std::string &fullPath)
+{
+    (void)request;
+    (void)routeDetail;
+    (void)fullPath;
+    return true;
+}
 
 bool StaticFileHandler::handleRequest(const Request &request, Response &response, RouteDetails &routeDetail, const std::string &fullPath)
 {

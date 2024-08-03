@@ -18,6 +18,7 @@
 
 #include "HttpMessage.hpp"
 #include "Logger.hpp"
+#include "Utility.hpp"
 
 class Response : public HttpMessage
 {
@@ -25,6 +26,7 @@ private:
 	int _statusCode;
 	std::string _responseString;
 	Logger _logger;
+	int _ready;
 	// std::string _contentType;
 	// int _contentLength;
 	// std::string _date;
@@ -41,6 +43,8 @@ public:
 	std::string toString();
 	void errorResponse(int status, std::string message);
 	void truncateResponse(unsigned long length);
+	void setReady(int status);
+	void setResponseString(std::string string);
 };
 
 #endif

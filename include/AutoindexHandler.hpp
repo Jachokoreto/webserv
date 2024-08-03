@@ -41,6 +41,7 @@ public:
 	 * @return * true if the request was handled, false if the request was not handled.
 	*/
 	bool handleRequest(const Request &request, Response &response, RouteDetails &routeDetails, const std::string &fullPath);
+	bool checkIfHandle(const Request &request, RouteDetails &routeDetails, const std::string &fullPath);
 
 
 

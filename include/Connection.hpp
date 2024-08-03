@@ -29,7 +29,7 @@
 
 #include "macro.h"
 
-#define BUFFER_SIZE 3000
+#define BUFFER_SIZE 8192
 
 class Connection
 {

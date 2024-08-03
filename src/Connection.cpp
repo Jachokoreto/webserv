@@ -6,24 +6,25 @@ int Connection::_connectionCount = 0;
 ** ------------------------- CONSTRUCTOR & DESTRUCTOR --------------------------
 */
 
-Connection::Connection(int fd, ServerBlock *serverBlock):  fd(fd), _serverBlock(serverBlock), _logger(Logger("Connection"))
+Connection::Connection(int fd, ServerBlock *serverBlock) : fd(fd), _serverBlock(serverBlock), _logger(Logger("Connection"))
 {
 	// this->_index = this->_connectionCount++;
 	// std::stringstream ss;
 	// ss << "created " << this->_index;;
 	// this->_logger.log(ss.str());
 	// std::cout << this->_requestString << std::endl;
-	_logger.log("Connection created at fd " + utl::toString(fd));
+	std::cout << "\n\n======NEW REQUEST========" << std::endl;
+	this->_logger.log("Connection created at fd " + utl::toString(fd));
 	_request = NULL;
 	_response = NULL;
-	_buffer = "";
+	_buffer.clear();
 }
 
 // Connection::Connection(): _logger(Logger("Connection")), _serverBlock()
 // {
 // }
 
-Connection::Connection(const Connection &src): _logger(Logger("Connection"))
+Connection::Connection(const Connection &src) : _logger(Logger("Connection"))
 {
 	_serverBlock = src._serverBlock;
 	_request = src._request;
@@ -76,9 +77,10 @@ std::ostream &operator<<(std::ostream &o, Connection const &i)
 
 bool Connection::readData()
 {
-	char buf[BUFFER_SIZE]; // buffer for client data
-	memset(buf, 0, BUFFER_SIZE);
-	ssize_t bytes_read = read(fd, buf, BUFFER_SIZE - 1);
+	char buf[BUFFER_SIZE+1]; // buffer for client data
+	memset(buf, 0, BUFFER_SIZE +1);
+	ssize_t bytes_read = recv(fd, buf, BUFFER_SIZE, 0);
+	size_t needle;
 
 	if (bytes_read == -1)
 	{
@@ -87,25 +89,69 @@ bool Connection::readData()
 	}
 	else if (bytes_read == 0)
 	{
+		this->_logger.log("CLOSE CONNECTION?");
 		return false; // Connection closed by client
 	}
-	buf[bytes_read] = '\0';
+	// buf[bytes_read] = '\0';
+	std::cout << "bytes_read: " << bytes_read << std::endl;
 	_buffer += std::string(buf);
-	if (_buffer.find("\r\n\r\n") == std::string::npos)
+	std::cout << "_buffer len: " << _buffer.length() << std::endl;
+	if (_request != NULL)
 	{
-		return true;
+		this->_logger.info("processing body...");
+		int res = _request->processBody(_buffer);
+		if (res == 1)
+		{
+			this->_logger.info("handle with body");
+			_serverBlock->router.routeRequest(*_request, *_response);
+		}
+		if (res != -1)
+			_buffer.clear();
 	}
-	try
+	else 
 	{
-		_request = new Request(_buffer);
-		_response = new Response();
-		_serverBlock->router.routeRequest(*_request, *_response);
+		needle = _buffer.find("\r\n\r\n");
+		if (needle != std::string::npos)
+		{
+			try
+			{
+				_request = new Request(_buffer.substr(0, needle + 4));
+				_response = new Response();
+				
+				int res = _request->checkIfHandleWithoutBody(); 
+				if (res == 1)
+				{
+					this->_logger.info("handle without body");
+					_serverBlock->router.routeRequest(*_request, *_response);
+					return true;
+				}
+				else if (res == -1)
+				{
+					_response->errorResponse(404, "Invalid body");
+					return true;
+				}
+				else if (res == 0)
+				{
+					_buffer = _buffer.substr(needle + 4);
+					this->_logger.info("processing body...");
+					if (_request->processBody(_buffer))
+					{
+						this->_logger.info("handle with body");
+						_serverBlock->router.routeRequest(*_request, *_response);
+					}
+					_buffer.clear();
+				}
+			}
+			catch (const std::exception &e)
+			{
+				_logger.error("Errro at routing request: " + std::string(e.what()));
+				return false;
+			}
+			_buffer.clear();
+		}
 	}
-	catch (const std::exception &e)
-	{
-		_logger.error("Errro at routing request: " + std::string(e.what()));
-		return false;
-	}
+
+
 	return true;
 }
 
@@ -114,9 +160,12 @@ bool Connection::sendData(void)
 	const std::string resString = _response->toString();
 	if (resString.empty())
 	{
-		_logger.log("Response not ready yet");
+		// _logger.log("Response not ready yet");
 		return false;
 	}
+	std::cout << "content length: " << _response->getHeader("Content-Length") << std::endl;
+	// char * cstr = (char *)resString.c_str();
+	// cstr[resString.length()] = '\0';
 	ssize_t bytes_sent = send(fd, resString.c_str(), resString.length(), 0);
 	if (bytes_sent == -1)
 	{
@@ -125,7 +174,9 @@ bool Connection::sendData(void)
 	}
 	if ((unsigned long)bytes_sent < resString.length())
 	{
+		this->_logger.log("didnt send finish");
 		_response->truncateResponse(bytes_sent);
+		return false;
 	}
 	_logger.log("sent data");
 	return true;
@@ -133,7 +184,7 @@ bool Connection::sendData(void)
 
 bool Connection::hasResponse()
 {
-	return _response != NULL;
+	return _response != NULL && !_response->toString().empty();
 }
 
 /*

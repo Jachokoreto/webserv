@@ -63,10 +63,11 @@ bool checkAllowedMethods(std::string reqMethods, int allowedMethods)
 RouteDetails *Router::getRouteDetails(const std::string &path, const routeTableMap &routeTable)
 {
 	RouteDetails *ret;
-
 	for (routeTableMap::const_iterator it = routeTable.begin(); it != routeTable.end(); ++it) {
 		if (path.find(it->first) != std::string::npos) {
 			ret = it->second;
+			if (!ret->cgiPass.empty())
+				return ret;
 		}
 	}
 	return ret;
@@ -121,6 +122,8 @@ void Router::routeRequest(const Request &request, Response &response)
 		std::string fullPath = this->_projectDir + routeDetail->root + request.getResource();
 		for (requestHandlerVecIt it = this->_requestHandlers->begin(); it != this->_requestHandlers->end(); it++)
 		{
+			if ((*it)->checkIfHandle(request, *routeDetail, fullPath) == false)
+				continue;
 			if ((*it)->handleRequest(request, response, *routeDetail, fullPath))
 				return;
 		}
@@ -129,7 +132,7 @@ void Router::routeRequest(const Request &request, Response &response)
 			_logger.log("sending default plain success");
 			response.setStatusCode(200);
 			response.addHeader("Content-Type", "text/html");
-			response.addHeader("Connection", "closed");
+			// response.addHeader("Connection", "closed");
 			response.setBody("<html>Welcome to the webserv, example.re homepage!</html>");
 			return;
 		}

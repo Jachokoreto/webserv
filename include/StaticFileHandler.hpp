@@ -31,6 +31,8 @@ public:
     StaticFileHandler();
     ~StaticFileHandler();
     bool handleRequest(const Request &request, Response &response, RouteDetails &routeDetail, const std::string &fullPath);
+    bool checkIfHandle(const Request &request, RouteDetails &routeDetail, const std::string &fullPath);
+    
 };
 
 #endif

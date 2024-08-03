@@ -150,6 +150,7 @@ void Webserver::handleConnections()
     {
         if (FD_ISSET(it->first, &_readFds))
         {
+            this->_logger.info("Receive read from server");
             acceptNewConnection(it->first, it->second);
         }
     }
@@ -159,6 +160,7 @@ void Webserver::handleConnections()
         int fd = (*it)->fd;
         if (FD_ISSET(fd, &_readFds))
         {
+            this->_logger.log("Something from read fds...");
             if ((*it)->readData() == false)
             {
                 _logger.info("close connection after read failed");
@@ -169,22 +171,24 @@ void Webserver::handleConnections()
                 delete *it;
                 it = _connections.erase(it);
                 continue;
-            }
+            }                 
         }
 
         if (FD_ISSET(fd, &_writeFds))
         {
+            this->_logger.log("Something from write fds...");
+
             // handle write
             if ((*it)->sendData())
             {
                 // !BUG tester failed when ran the second time
                 // FATAL ERROR ON LAST TEST: read tcp 127.0.0.1:49868->127.0.0.1:80:
                 _logger.info("close connection after send");
+                delete *it;
+                it = _connections.erase(it);
                 close(fd);
                 FD_CLR(fd, &_readFds);
                 FD_CLR(fd, &_writeFds);
-                delete *it;
-                it = _connections.erase(it);
                 continue;
             }
         }

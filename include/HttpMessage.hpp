@@ -15,6 +15,7 @@
 
 #include <string>
 #include <map>
+#include <iostream>
 
 class HttpMessage
 {
@@ -28,10 +29,11 @@ public:
 	~HttpMessage();
 
 	void addHeader(const std::string &field, const std::string &value);
-	void setBody(const std::string &responseBody);
+	void setBody(const std::string responseBody);
 	const std::string getBody() const;
 	const std::string getHeader(const std::string &field);
 	const std::map<std::string, std::string> getAllHeaders() const;
+	void parseHeaders(std::vector<std::string> string);
 };
 
 #endif

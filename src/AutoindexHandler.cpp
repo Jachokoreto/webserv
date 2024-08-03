@@ -35,27 +35,30 @@ std::string AutoindexHandler::loadHtmlTemplate(void)
 	return autoindexTempl.str();
 }
 
-bool AutoindexHandler::handleRequest(const Request &req, Response &res, RouteDetails &routeDetails, const std::string &fullPath)
+bool AutoindexHandler::checkIfHandle(const Request &request, RouteDetails &routeDetails, const std::string &fullPath)
 {
-	DIR *dir;
-	dirent *entry;
-	// std::string path = routeDetails.root + req.getResource();
-	// std::cout << path << std::endl;
-	std::ifstream file("/autoindex/autoindex.html");
-	std::string autoindexTempl;
-	std::string listingHtml;
-
-	// check if request is for autoindex
-	_logger.info(fullPath);
-	if (!utl::isDirectory(fullPath)) {
-		_logger.log("Not a directory");
-		return false;
-	}
+	(void)request;
 	if (routeDetails.autoindex == false)
 	{
 		_logger.log("Autoindex is disabled");
 		return false;
 	}
+	if (!utl::isDirectory(fullPath)) {
+		_logger.log("Not a directory");
+		return false;
+	}
+	return true;
+}
+
+bool AutoindexHandler::handleRequest(const Request &req, Response &res, RouteDetails &routeDetails, const std::string &fullPath)
+{
+	DIR *dir;
+	dirent *entry;
+	// std::string path = routeDetails.root + req.getResource();
+	std::ifstream file("/autoindex/autoindex.html");
+	std::string autoindexTempl;
+	std::string listingHtml;
+	(void) routeDetails;
 
 	autoindexTempl = loadHtmlTemplate();
 	if (autoindexTempl.empty())
@@ -79,7 +82,7 @@ bool AutoindexHandler::handleRequest(const Request &req, Response &res, RouteDet
 		std::string name = entry->d_name;
 		// std::string link = (utl::isDirectory(path + "/" + name)) ? name + "/" : name;
 		std::string link = req.getRoute() + "/" + name;
-		std::cout << link << std::endl;
+		std::cout << "link: " << link << std::endl;
 		listingHtml += "<li><a href='" + link + "'>" + name + "</a></li>\n";
 	}
 	closedir(dir);

@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <map>
 #include <exception>
+#include <unistd.h>
 
 #include "HttpMessage.hpp"
 #include "Utility.hpp"
@@ -31,6 +32,8 @@ private:
 	std::string _method;
 	std::string _uri;
 	Logger _logger;
+	size_t chunkSizeRemaining; // Track remaining chunk size
+
 
 public:
 	Request();
@@ -56,6 +59,9 @@ public:
 	const std::string getUri() const;
 	const std::string getRoute() const;
 	const std::string getResource() const;
+
+	int processBody(const std::string &buffer);
+	int checkIfHandleWithoutBody(void);
 };
 
 #endif

@@ -35,6 +35,18 @@ public:
      * @return * true if the request was handled, false if the request was not handled.
      */
     virtual bool handleRequest(const Request &request, Response &response, RouteDetails &routeDetail, const std::string &fullPath) = 0;
+
+    /**
+     *
+     * Virtual function to check if should handle request.
+     *
+     * @param req The request object containing the client's request information.
+     * @param res The response object used to send the response back to the client.
+     * @param root The root directory path to find the resource.
+     *
+     * @return * true if the request should handle, false if the request should not be handled.
+     */
+    virtual bool checkIfHandle(const Request &request, RouteDetails &routeDetail, const std::string &fullPath) = 0;
 };
 
 #endif

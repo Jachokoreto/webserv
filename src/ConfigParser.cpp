@@ -34,7 +34,7 @@ void ConfigParser::createServerBlocksFromConf(const std::string& filename, std::
                 std::cerr << "Key server is reserved for server block\nie: server {...}" << std::endl;
                 return;
             }
-        } else if (key == "route") {
+        } else if (key == "location") {
             ss >> value;
             ss >> end;
             // std::cout << value << end << inServerBlock << std::endl;

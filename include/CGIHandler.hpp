@@ -17,6 +17,9 @@
 # include "Utility.hpp"
 # include <unistd.h>
 # include <cstring>
+#include <fcntl.h>
+
+#define CHUNK_SIZE ( 4 * 1024 )
 
 class CGIHandler : public RequestHandler
 {
@@ -38,7 +41,7 @@ public:
 	 * @return * true if the request was handled, false if the request was not handled.
 	*/
 	bool handleRequest(const Request &request, Response &response, RouteDetails &routeDetails, const std::string &fullPath);
-
+	bool checkIfHandle(const Request &request, RouteDetails &routeDetails, const std::string &fullPath);
 
 
 private:

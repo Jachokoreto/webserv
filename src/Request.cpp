@@ -109,37 +109,44 @@ void Request::setMethod(const std::string &method)
     this->_method = method;
 }
 
-Request::Request(const std::string &requestString) : _logger(Logger("Request"))
+Request::Request(const std::string &requestString) : _logger(Logger("Request")), chunkSizeRemaining(0)
 {
     if (requestString.empty())
         return;
+    this->_logger.info("\n" + requestString);
     std::vector<std::string> split = utl::splitStringByDelim(requestString, '\n');
     std::vector<std::string> requestLine = utl::splitStringByDelim(split[0], ' ');
     const std::string &method = requestLine[0];
     // if (std::find(Request::methodVector.begin(), Request::methodVector.end(), method) == Request::methodVector.end())
     // 	throw Request::NotAllowedException("Invalid method");
     this->setMethod(method);
-    _logger.info(split[0]);
     this->setUri(sanitizeUri(requestLine[1]));
     this->_version = "HTTP/1.1";
 
-    // from split separate body and header, seperator is """
-    std::vector<std::string>::iterator headerEndIterator = std::find(split.begin() + 1, split.end(), "");
-    // std::vector<std::string> header(split.begin() + 1, iterator);
-    for (std::vector<std::string>::iterator startIt = split.begin() + 1; startIt != headerEndIterator; startIt++)
-    {
-        std::size_t delimPos = startIt->find(": ");
-        if (delimPos != std::string::npos && delimPos != 0)
-        {
-            std::string key = startIt->substr(0, delimPos);
-            std::string value = startIt->substr(delimPos + 2);
-            this->addHeader(key, value);
-        }
-    }
+    split.erase(split.begin());
+    this->parseHeaders(split);
+    // // from split separate body and header, seperator is """
+    // std::vector<std::string>::iterator headerEndIterator = std::find(split.begin() + 1, split.end(), "");
+    // // std::vector<std::string> header(split.begin() + 1, iterator);
+    // for (std::vector<std::string>::iterator startIt = split.begin() + 1; startIt != headerEndIterator; startIt++)
+    // {
+    //     std::size_t delimPos = startIt->find(": ");
+    //     if (delimPos != std::string::npos && delimPos != 0)
+    //     {
+    //         std::string key = startIt->substr(0, delimPos);
+    //         std::string value = startIt->substr(delimPos + 2);
+    //         std::string::size_type pos;
 
-    if (headerEndIterator != split.end())
-        while (++headerEndIterator != split.end())
-            this->_body = this->_body + *headerEndIterator + '\n';
+    //         if ((pos = value.find("\r")) != std::string::npos) {
+    //             value.erase(pos, 2);
+    //         }
+    //         this->addHeader(key, value);
+    //     }
+    // }
+
+    // if (headerEndIterator != split.end())
+    //     while (++headerEndIterator != split.end())
+    //         this->_body = this->_body + *headerEndIterator + '\n';
 }
 
 // Request::Request() {}
@@ -154,6 +161,91 @@ Request::Request(Request const &src) : _logger(Logger("Request"))
 }
 
 Request::~Request() {}
+
+int Request::processBody(const std::string &buffer)
+{
+   size_t needle;
+    int len = 0;
+    std::string tmp;
+
+    size_t bufferIndex = 0;
+
+    std::cout << "buffer: " << buffer << std::endl;
+
+    if (this->getHeader("Transfer-Encoding").compare("chunked") == 0) {
+        this->_logger.info("is chunked");
+        // std::cout << "buffer :\n" << buffer << std::endl;
+        while (bufferIndex < buffer.size()) {
+            if (chunkSizeRemaining == 0) {
+                this->_logger.log("chunk size remaining 0");
+                needle = buffer.find("\r\n", bufferIndex);
+                if (needle == std::string::npos) {
+                    this->_logger.error("Missing CRLF");
+                    return -1;
+                }
+                std::string sub = buffer.substr(bufferIndex, needle - bufferIndex);
+                chunkSizeRemaining = strtol(sub.c_str(), NULL, 16);
+                std::cout << "chunkSizeRemaining: " << chunkSizeRemaining << std::endl;
+                bufferIndex = needle + 2; // Skip past the \r\n
+
+                if (chunkSizeRemaining == 0) {
+                    std::cout << "sub: " << sub << std::endl;
+                    std::cout << "body len: " << this->_body.length() << std::endl;
+                    this->_logger.info("Chunked last 0 found");
+                    return 1;
+                }
+            }
+
+            size_t chunkDataAvailable = std::min(chunkSizeRemaining, buffer.size() - bufferIndex);
+            std::cout << "chunkDataAvailable: " << chunkDataAvailable << std::endl;
+            this->_body.append(buffer.substr(bufferIndex, chunkDataAvailable));
+            chunkSizeRemaining -= chunkDataAvailable;
+            bufferIndex += chunkDataAvailable;
+
+            if (chunkSizeRemaining == 0) {
+                if (bufferIndex + 2 <= buffer.size() && buffer.substr(bufferIndex, 2) == "\r\n") {
+                    bufferIndex += 2; // Skip past the \r\n after the chunk
+                } else {
+                    this->_logger.error("Invalid Chunked (Missing CRLF after chunk data)");
+                    return -1;
+                }
+            }
+        }
+    } else {
+        tmp = this->getHeader("Content-Length");
+        len = atoi(tmp.c_str());
+        this->_body.append(buffer, 0, len - this->_body.length());
+        if (this->_body.length() == (size_t)len)
+            return 1;
+    }
+    // usleep(5000);
+    return 0;
+}
+
+int Request::checkIfHandleWithoutBody(void)
+{
+    int len = 0;
+    bool isChunk = false;
+
+    if (this->getMethod() != "POST")
+    {
+        // if not POST method, only headers created when construct are
+        // needed to handle the request;
+        return 1;
+    }
+    
+    len = atoi(this->getHeader("Content-Length").c_str());
+    isChunk = this->getHeader("Transfer-Encoding") == "chunked";
+
+    if ((len > 0 && !isChunk) || (len < 1 && isChunk))
+    {
+        this->_logger.info("has content length or chunked");
+        return 0;
+    }
+    this->_logger.info("returning -1");
+
+    return -1;
+}
 
 /************************ Request::NotAllowedException ************************/
 
