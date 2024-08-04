@@ -51,7 +51,7 @@ ssize_t writeAllBytes(int fd, char *data, size_t bytes)
 
 		std::cout << "bytesToWrite: " << bytesToWrite << std::endl;
 		ssize_t bytesWritten = write(fd, buf, bytesToWrite);
-		usleep(5000);
+		usleep(100000);
 		if (bytesWritten <= 0)
 		{
 			if (bytesWritten == -1)
@@ -84,15 +84,15 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 	int c[2]; // Used to store two ends of first pipe
 	int p[2]; // Used to store two ends of second pipe
 
-	char buffer[PATH_MAX];
-	if (getcwd(buffer, sizeof(buffer)) != nullptr)
-	{
-		std::cout << "Current Path: " << buffer << std::endl;
-	}
-	else
-	{
-		perror("getcwd() error");
-	}
+	// char buffer[PATH_MAX];
+	// if (getcwd(buffer, sizeof(buffer)) != nullptr)
+	// {
+	// 	std::cout << "Current Path: " << buffer << std::endl;
+	// }
+	// else
+	// {
+	// 	perror("getcwd() error");
+	// }
 
 	if (pipe(c) == -1)
 	{
@@ -120,12 +120,12 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 	if (pid == 0)
 	{							  // Child process
 		dup2(c[0], STDIN_FILENO); // Redirect stdin to pipe read end
-		close(c[0]);			  // Close read end
-		close(c[1]);			  // Close chile write end
+		// close(c[0]);			  // Close read end
+		close(c[1]); // Close chile write end
 
 		dup2(p[1], STDOUT_FILENO); // Redirect stdout to pipe write end
 		close(p[0]);			   // Close parent read end
-		close(p[1]);			   // Close write end
+		// close(p[1]);			   // Close write end
 
 		std::vector<const char *const> env;
 		std::vector<const char *const> arg;
@@ -147,6 +147,7 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 	else
 	{ // Parent process
 
+		usleep(1000000);
 		if (!request.getBody().empty())
 		{
 			std::string tmp = request.getBody();
@@ -181,6 +182,7 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		// Read the CGI output from the pipe
 		char buffer[300];
 		std::string responseBody;
+		size_t total_bytes = 0;
 		ssize_t bytes_read = -1;
 		this->_logger.log("start read...");
 		while (bytes_read != 0)
@@ -188,10 +190,9 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 			bytes_read = read(p[0], buffer, sizeof(buffer) - 1);
 			if (bytes_read > 0)
 			{
-				// this->_logger.log("in read response: " + std::string(buffer, bytes_read));
-				buffer[bytes_read - 1] = '\0';
-				responseBody.append(buffer, bytes_read);
+				responseBody.append(std::string(buffer, bytes_read));
 			}
+			total_bytes += bytes_read;
 		}
 		waitpid(pid, NULL, 0);
 		close(p[0]); // Close read end
@@ -202,29 +203,33 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		// std::cout << "After substr:" <<  responseBody.substr(0, needle) << std::endl;
 		// response.parseHeaders(utl::splitStringByDelim(responseBody.substr(0, needle), '\n'));
 		// // Create an output file stream (ofstream) object
-		// std::ofstream outFile;
+		std::ofstream outFile;
 
-		// // Open the file
-		// outFile.open("example");
+		// Open the file
+		outFile.open("example");
 
-		// // Check if the file is open
-		// if (!outFile.is_open()) {
-		// 	std::cerr << "Failed to open the file." << std::endl;
-		// 	return 1;
-		// }
+		// Check if the file is open
+		if (!outFile.is_open())
+		{
+			std::cerr << "Failed to open the file." << std::endl;
+			return 1;
+		}
 
-		// // Write the string to the file
-		// outFile << responseBody;
+		// Write the string to the file
+		outFile << responseBody;
 
-		// // Close the file stream
-		// outFile.close();
+		// Close the file stream
+		outFile.close();
 
-		// std::cout << "Data has been written to the file." << std::endl;
+		std::cout << "Data has been written to the file." << std::endl;
+		std::cout << "Total bytes appended: " << total_bytes << std::endl;
 		// responseBody = responseBody.substr(responseBody.find("\r\n\r\n") + 4);
 		response.setBody(responseBody);
-// 135226
+		// 135226
 		// response.setResponseString(responseBody);
 	}
+	close(c[0]);
+	close(p[1]);
 	return true;
 }
 

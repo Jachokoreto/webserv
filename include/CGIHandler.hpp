@@ -11,15 +11,15 @@
 /* ************************************************************************** */
 
 #ifndef CGIHANDLER_HPP
-# define CGIHANDLER_HPP
+#define CGIHANDLER_HPP
 
-# include "RequestHandler.hpp"
-# include "Utility.hpp"
-# include <unistd.h>
-# include <cstring>
+#include "RequestHandler.hpp"
+#include "Utility.hpp"
+#include <unistd.h>
+#include <cstring>
 #include <fcntl.h>
 
-#define CHUNK_SIZE ( 4 * 1024 )
+#define CHUNK_SIZE (2 * 1024)
 
 class CGIHandler : public RequestHandler
 {
@@ -28,7 +28,6 @@ public:
 	// CGIHandler( CGIHandler const & src );
 	// CGIHandler & operator=( CGIHandler const & rhs );
 	~CGIHandler();
-
 
 	/** Handles the request for autoindexing.
 	 *
@@ -39,17 +38,14 @@ public:
 	 * @param root The root directory path to find the resource.
 	 *
 	 * @return * true if the request was handled, false if the request was not handled.
-	*/
+	 */
 	bool handleRequest(const Request &request, Response &response, RouteDetails &routeDetails, const std::string &fullPath);
 	bool checkIfHandle(const Request &request, RouteDetails &routeDetails, const std::string &fullPath);
-
 
 private:
 	std::string loadHtmlTemplate(void);
 
 	Logger _logger;
 };
-
-
 
 #endif /* ****************************************************** CGIHANDLER_HPP */

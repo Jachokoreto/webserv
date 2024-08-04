@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Router.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:58:14 by chenlee           #+#    #+#             */
-/*   Updated: 2024/06/21 10:05:40 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/04 02:50:20 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,47 @@
 #include <iostream>
 #include <iomanip>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#include <limits.h>
+#endif
+
 Router::Router() : _logger(Logger("Router"))
 {
-	_projectDir = "/Users/user/sidess/webserv/";
+	char cwd[PATH_MAX];
+#ifdef _WIN32
+	if (GetCurrentDirectory(PATH_MAX, cwd) != 0)
+	{
+		_projectDir = cwd;
+	}
+	else
+	{
+		printf("Failed to get project directory: %lu\n", GetLastError());
+	}
+#else
+	if (getcwd(cwd, sizeof(cwd)) != NULL)
+	{
+		_projectDir = cwd;
+	}
+	else
+	{
+		perror("Failed to get project directory");
+	}
+#endif
+
+	// Append "/" to the end of _projectDir if it's not already there
+	if (!_projectDir.empty())
+	{
+#ifdef _WIN32
+		if (_projectDir.back() != '\\')
+			_projectDir += "\\";
+#else
+		if (_projectDir.back() != '/')
+			_projectDir += "/";
+#endif
+	}
 }
 
 Router::Router(std::string projectDir) : _projectDir(projectDir), _logger(Logger("Router")) {}
@@ -35,7 +73,6 @@ void Router::addRoute(const std::string &path, RouteDetails *routeDetail)
 {
 	this->_routeTable[path] = routeDetail;
 	std::cout << "methods: " << routeDetail->allowedMethods << std::endl;
-	
 }
 
 void Router::assignHandlers(requestHandlerVec &handlers)
@@ -63,8 +100,10 @@ bool checkAllowedMethods(std::string reqMethods, int allowedMethods)
 RouteDetails *Router::getRouteDetails(const std::string &path, const routeTableMap &routeTable)
 {
 	RouteDetails *ret;
-	for (routeTableMap::const_iterator it = routeTable.begin(); it != routeTable.end(); ++it) {
-		if (path.find(it->first) != std::string::npos) {
+	for (routeTableMap::const_iterator it = routeTable.begin(); it != routeTable.end(); ++it)
+	{
+		if (path.find(it->first) != std::string::npos)
+		{
 			ret = it->second;
 			if (!ret->cgiPass.empty())
 				return ret;
@@ -74,29 +113,29 @@ RouteDetails *Router::getRouteDetails(const std::string &path, const routeTableM
 	// routeTableMap::const_iterator routeIt;
 	// try
 	// {
-		// size_t toFind = 1;
-		// while (toFind != std::string::npos)
-		// {
-		// 	toFind = path.find('/', toFind);
-		// 	std::string route;
-		// 	if (toFind != std::string::npos)
-		// 	{
-		// 		route = path.substr(0, toFind);
-		// 	}
-		// 	else
-		// 	{
-		// 		route = "/";
-		// 	}
-		// 	this->_logger.warning("toFind: " + route);
-		// 	routeIt = routeTable.find(route);
-		// 	if (routeIt != routeTable.end())
-		// 	{
-		// 		return routeIt->second;
-		// 	} else if (route == "/") {
-		// 		break;
-		// 	}
-		// }
-		
+	// size_t toFind = 1;
+	// while (toFind != std::string::npos)
+	// {
+	// 	toFind = path.find('/', toFind);
+	// 	std::string route;
+	// 	if (toFind != std::string::npos)
+	// 	{
+	// 		route = path.substr(0, toFind);
+	// 	}
+	// 	else
+	// 	{
+	// 		route = "/";
+	// 	}
+	// 	this->_logger.warning("toFind: " + route);
+	// 	routeIt = routeTable.find(route);
+	// 	if (routeIt != routeTable.end())
+	// 	{
+	// 		return routeIt->second;
+	// 	} else if (route == "/") {
+	// 		break;
+	// 	}
+	// }
+
 	// }
 	// catch (std::exception &e)
 	// {
