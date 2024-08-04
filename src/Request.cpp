@@ -170,14 +170,12 @@ int Request::processBody(const std::string &buffer)
 
     size_t bufferIndex = 0;
 
-    std::cout << "buffer: " << buffer << std::endl;
+    // std::cout << "buffer: " << buffer << std::endl;
+    usleep(1 * 5000);
 
     if (this->getHeader("Transfer-Encoding").compare("chunked") == 0) {
-        this->_logger.info("is chunked");
-        // std::cout << "buffer :\n" << buffer << std::endl;
         while (bufferIndex < buffer.size()) {
             if (chunkSizeRemaining == 0) {
-                this->_logger.log("chunk size remaining 0");
                 needle = buffer.find("\r\n", bufferIndex);
                 if (needle == std::string::npos) {
                     this->_logger.error("Missing CRLF");
@@ -185,20 +183,24 @@ int Request::processBody(const std::string &buffer)
                 }
                 std::string sub = buffer.substr(bufferIndex, needle - bufferIndex);
                 chunkSizeRemaining = strtol(sub.c_str(), NULL, 16);
-                std::cout << "chunkSizeRemaining: " << chunkSizeRemaining << std::endl;
+                // std::cout << "chunkSizeRemaining: " << chunkSizeRemaining << std::endl;
                 bufferIndex = needle + 2; // Skip past the \r\n
 
                 if (chunkSizeRemaining == 0) {
                     std::cout << "sub: " << sub << std::endl;
-                    std::cout << "body len: " << this->_body.length() << std::endl;
-                    this->_logger.info("Chunked last 0 found");
+                    this->_logger.info("Chunked last 0 found! Body en: " + utl::toString(this->_body.length()));
                     return 1;
                 }
             }
 
             size_t chunkDataAvailable = std::min(chunkSizeRemaining, buffer.size() - bufferIndex);
-            std::cout << "chunkDataAvailable: " << chunkDataAvailable << std::endl;
+            // std::cout << "chunkDataAvailable: " << chunkDataAvailable << std::endl;
             this->_body.append(buffer.substr(bufferIndex, chunkDataAvailable));
+            if (!this->_body.empty())
+            {
+                std::cout << "\x1b[1A" << "\x1b[2K"; // Delete current line
+            }
+            std::cout << "current lenght: " << this->_body.length() << std::endl;
             chunkSizeRemaining -= chunkDataAvailable;
             bufferIndex += chunkDataAvailable;
 

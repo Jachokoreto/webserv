@@ -160,7 +160,7 @@ void Webserver::handleConnections()
         int fd = (*it)->fd;
         if (FD_ISSET(fd, &_readFds))
         {
-            this->_logger.log("Something from read fds...");
+            // this->_logger.log("Something from read fds...");
             if ((*it)->readData() == false)
             {
                 _logger.info("close connection after read failed");
@@ -176,7 +176,7 @@ void Webserver::handleConnections()
 
         if (FD_ISSET(fd, &_writeFds))
         {
-            this->_logger.log("Something from write fds...");
+            // this->_logger.log("Something from write fds...");
 
             // handle write
             if ((*it)->sendData())

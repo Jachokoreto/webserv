@@ -82,10 +82,9 @@ std::string Response::toString()
         responseStream << "\r\n";
         // optional body
         if (this->_body != "")
-            responseStream << this->_body;
+            responseStream << this->_body << "\n";
         _responseString = responseStream.str();
     }
-    // std::cout << "responseString: " << _responseString << std::endl;
     return _responseString;
 }
 

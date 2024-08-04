@@ -92,17 +92,13 @@ bool Connection::readData()
 		this->_logger.log("CLOSE CONNECTION?");
 		return false; // Connection closed by client
 	}
-	// buf[bytes_read] = '\0';
-	std::cout << "bytes_read: " << bytes_read << std::endl;
 	_buffer += std::string(buf);
-	std::cout << "_buffer len: " << _buffer.length() << std::endl;
 	if (_request != NULL)
 	{
-		this->_logger.info("processing body...");
 		int res = _request->processBody(_buffer);
 		if (res == 1)
 		{
-			this->_logger.info("handle with body");
+			this->_logger.info("handle with body"); 
 			_serverBlock->router.routeRequest(*_request, *_response);
 		}
 		if (res != -1)
@@ -133,7 +129,6 @@ bool Connection::readData()
 				else if (res == 0)
 				{
 					_buffer = _buffer.substr(needle + 4);
-					this->_logger.info("processing body...");
 					if (_request->processBody(_buffer))
 					{
 						this->_logger.info("handle with body");
