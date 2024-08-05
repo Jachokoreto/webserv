@@ -53,7 +53,7 @@ ssize_t writeAllBytes(int fd, char *data, size_t bytes)
 		{
 			bytesToWrite = CHUNK_SIZE;
 		}
-		ssize_t bytesWritten = 0;
+		// ssize_t bytesWritten = 0;
 
 		ssize_t bytesWritten = write(fd, buf, bytesToWrite);
 		if (bytesWritten <= 0)
