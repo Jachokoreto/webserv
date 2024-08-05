@@ -23,6 +23,7 @@ Response::Response() : _logger(Logger("Response")), _ready(0)
     statusMap[405] = "Method not allowed";
     statusMap[500] = "Internal Server Error";
     _body = "";
+    _isDone = false;
     // std::cout << "Response constructor" << std::endl;
 }
 
@@ -30,6 +31,93 @@ Response::~Response()
 {
     // std::cout << "Response destructor" << std::endl;
 }
+
+std::string Response::toString()
+{
+    if (this->_ready != 1)
+        return "";
+    std::stringstream responseStream;
+    size_t bodyLen = this->_body.length();
+
+    if (!_responseString.empty())
+        return _responseString;
+
+    if (!_isHeaderSent)
+    {
+        // Status line
+        responseStream << "HTTP/1.1 " << this->_statusCode << " " << Response::statusMap.at(this->_statusCode) << "\r\n";
+
+        if (bodyLen > 0)
+        {
+            if (bodyLen <= BODY_SIZE)
+            {
+                this->addHeader("Content-Length", utl::toString(this->getBody().length()));
+            }
+            else
+            {
+                this->addHeader("Transfer-Encoding", "chunked");
+            }
+        }
+        // header
+        for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); it++)
+        {
+            responseStream << it->first << ": " << it->second << "\r\n";
+        }
+        responseStream << "\r\n";
+        _isHeaderSent = true;
+    }
+
+    bool isChunked = this->getHeader("Transfer-Encoding") == "chunked";
+    // optional body
+    if (bodyLen > 0)
+    {
+        if (isChunked)
+        {
+            int chunk_size = bodyLen <= BODY_SIZE ? bodyLen : BODY_SIZE;
+            std::ostringstream ss;
+            ss << std::hex << chunk_size;
+            responseStream << ss.str() << "\r\n"
+                           << this->_body.substr(0, chunk_size) << "\r\n";
+            this->_body = this->_body.substr(chunk_size);
+            std::cout << responseStream.str() << std::endl;
+        }
+        else
+        {
+            responseStream << this->_body;
+            this->_isDone = true;
+        }
+    }
+    else if (bodyLen == 0 && isChunked && !this->_isDone)
+    {
+        responseStream << "0\r\n\r\n";
+        this->_isDone = true;
+    }
+    else if (bodyLen == 0 && !isChunked)
+    {
+        this->_isDone = true;
+    }
+
+    this->_responseString = responseStream.str();
+    return this->_responseString;
+}
+
+void Response::errorResponse(int statusCode, std::string message)
+{
+    (void)message;
+    setStatusCode(statusCode);
+    // _logger.error(message);
+}
+
+void Response::truncateResponse(unsigned long length)
+{
+    if (this->_responseString.length() > length)
+        this->_responseString = this->_responseString.substr(length);
+}
+
+/*
+** --------------------------------- ACCESSOR ---------------------------------
+*/
+
 
 void Response::setStatusCode(int status)
 {
@@ -47,69 +135,7 @@ int Response::getStatusCode() const
     return this->_statusCode;
 }
 
-int strlen(std::string toCount) {
-    char * str = (char *)toCount.c_str();
-    int i = 0;
-    while (str[i] != '\0')
-        i++;
-    return i;
-}
-
-std::string Response::toString()
+bool Response::getIsDone() const
 {
-    if (this->_ready != 1)
-        return "";
-    if (_responseString.empty())
-    {
-
-        std::stringstream responseStream;
-
-        // Status line
-        responseStream << "HTTP/1.1 " << this->_statusCode << " " << Response::statusMap.at(this->_statusCode) << "\r\n";
-
-        if (!this->_body.empty())
-        {
-            // std::cout << "length: " << strlen(this->_body) << std::endl;
-            this->addHeader("Content-Length", utl::toString(this->getBody().length()));
-        }
-        // header
-        for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); it++)
-        {
-            responseStream << it->first << ": " << it->second << "\r\n";
-        }
-
-
-        responseStream << "\r\n";
-        std::cout << responseStream.str() << std::endl;
-        // optional body
-        if (this->_body != "")
-            responseStream << this->_body << "\n";
-        _responseString = responseStream.str();
-    }
-    return _responseString;
+    return this->_isDone;
 }
-
-void Response::errorResponse(int statusCode, std::string message)
-{
-    setStatusCode(statusCode);
-    // setBody(statusMap[statusCode]);
-    _logger.error(message);
-}
-
-void Response::truncateResponse(unsigned long length)
-{
-    if (this->_responseString.length() > length)
-        this->_responseString = this->_responseString.substr(length);
-}
-
-// void Response::setResponseString(std::string string)
-// {
-//     std::stringstream responseStream;
-//     responseStream << "HTTP/1.1 " << this->_statusCode << " " << Response::statusMap.at(this->_statusCode) << "\r\n";
-
-
-//     this->_responseString += responseStream.str();
-//     this->_responseString += string + "\r\n";
-
-//     this->_ready = true;
-// }

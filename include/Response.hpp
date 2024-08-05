@@ -20,6 +20,8 @@
 #include "Logger.hpp"
 #include "Utility.hpp"
 
+#define BODY_SIZE 32768
+
 class Response : public HttpMessage
 {
 private:
@@ -27,11 +29,8 @@ private:
 	std::string _responseString;
 	Logger _logger;
 	int _ready;
-	// std::string _contentType;
-	// int _contentLength;
-	// std::string _date;
-	// std::string _server;
-	// std::string _connection;
+	bool _isHeaderSent;
+	bool _isDone;
 
 public:
 	Response();
@@ -40,6 +39,7 @@ public:
 	static std::map<int, std::string> statusMap;
 	void setStatusCode(int status);
 	int getStatusCode() const;
+	bool getIsDone() const;
 	std::string toString();
 	void errorResponse(int status, std::string message);
 	void truncateResponse(unsigned long length);

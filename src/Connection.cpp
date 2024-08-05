@@ -52,11 +52,8 @@ Connection &Connection::operator=(const Connection &rhs)
 {
 	if (this != &rhs)
 	{
-		// Since _serverBlock is a reference, it cannot be reassigned
-		// Logger can be reinitialized or reconfigured
 		_logger = rhs._logger;
 		_serverBlock = rhs._serverBlock;
-		// Ensure other member variables like _request and _response are copied correctly
 		_request = rhs._request;
 		_response = rhs._response;
 	}
@@ -93,6 +90,7 @@ bool Connection::readData()
 		return false; // Connection closed by client
 	}
 	_buffer += std::string(buf);
+
 	if (_request != NULL)
 	{
 		int res = _request->processBody(_buffer);
@@ -119,12 +117,10 @@ bool Connection::readData()
 				{
 					this->_logger.info("handle without body");
 					_serverBlock->router.routeRequest(*_request, *_response);
-					return true;
 				}
 				else if (res == -1)
 				{
 					_response->errorResponse(404, "Invalid body");
-					return true;
 				}
 				else if (res == 0)
 				{
@@ -134,15 +130,15 @@ bool Connection::readData()
 						this->_logger.info("handle with body");
 						_serverBlock->router.routeRequest(*_request, *_response);
 					}
-					_buffer.clear();
 				}
 			}
 			catch (const std::exception &e)
 			{
-				_logger.error("Errro at routing request: " + std::string(e.what()));
+				_logger.error(std::string(e.what()));
+				_buffer.clear();
 				return false;
 			}
-			_buffer.clear();
+				_buffer.clear();
 		}
 	}
 
@@ -155,12 +151,9 @@ bool Connection::sendData(void)
 	const std::string resString = _response->toString();
 	if (resString.empty())
 	{
-		// _logger.log("Response not ready yet");
 		return false;
 	}
-	std::cout << "content length: " << _response->getHeader("Content-Length") << std::endl;
-	// char * cstr = (char *)resString.c_str();
-	// cstr[resString.length()] = '\0';
+	// std::cout << "content length: " << _response->getHeader("Content-Length") << std::endl;
 	ssize_t bytes_sent = send(fd, resString.c_str(), resString.length(), 0);
 	if (bytes_sent == -1)
 	{
@@ -169,11 +162,15 @@ bool Connection::sendData(void)
 	}
 	if ((unsigned long)bytes_sent < resString.length())
 	{
-		this->_logger.log("didnt send finish");
+		this->_logger.log("didnt send finish, sent: " + utl::toString(bytes_sent));
 		_response->truncateResponse(bytes_sent);
 		return false;
 	}
-	_logger.log("sent data");
+	if (!this->_response->getIsDone())
+	{
+		return false;
+	}
+	_logger.log("Finished sending response");
 	return true;
 }
 

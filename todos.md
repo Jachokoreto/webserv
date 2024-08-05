@@ -30,3 +30,5 @@
 - client can be bounced properly if necessary
 - multiplexing
 
+TODOs:
+- [ ] make chunked response

@@ -33,6 +33,7 @@ private:
 	std::string _uri;
 	Logger _logger;
 	size_t chunkSizeRemaining; // Track remaining chunk size
+	std::string _tmp;
 
 
 public:

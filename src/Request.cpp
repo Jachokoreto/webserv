@@ -162,6 +162,12 @@ Request::Request(Request const &src) : _logger(Logger("Request"))
 
 Request::~Request() {}
 
+/**
+ * read Buffer
+ * if chunk size to read is 0, 
+ *  find \r\n to get the chunk size.
+*/
+
 int Request::processBody(const std::string &buffer)
 {
    size_t needle;
@@ -183,12 +189,19 @@ int Request::processBody(const std::string &buffer)
                 }
                 std::string sub = buffer.substr(bufferIndex, needle - bufferIndex);
                 chunkSizeRemaining = strtol(sub.c_str(), NULL, 16);
-                // std::cout << "chunkSizeRemaining: " << chunkSizeRemaining << std::endl;
+                // std::cout << "chunkSizeRemaining: " << chunkSizeRemaining << std::endl << std::endl ;     
+            
                 bufferIndex = needle + 2; // Skip past the \r\n
 
                 if (chunkSizeRemaining == 0) {
-                    std::cout << "sub: " << sub << std::endl;
-                    this->_logger.info("Chunked last 0 found! Body en: " + utl::toString(this->_body.length()));
+                    if (sub == "0") 
+                    {
+                        this->_logger.info("Chunked last 0 found! Body len: " + utl::toString(this->_body.length()));
+                    }
+                    else 
+                    {
+                        throw "error";
+                    }
                     return 1;
                 }
             }
@@ -196,10 +209,8 @@ int Request::processBody(const std::string &buffer)
             size_t chunkDataAvailable = std::min(chunkSizeRemaining, buffer.size() - bufferIndex);
             // std::cout << "chunkDataAvailable: " << chunkDataAvailable << std::endl;
             this->_body.append(buffer.substr(bufferIndex, chunkDataAvailable));
-            if (!this->_body.empty())
-            {
-                std::cout << "\x1b[1A" << "\x1b[2K"; // Delete current line
-            }
+
+            std::cout << "\x1b[1A" << "\x1b[2K"; // Delete current line
             std::cout << "current lenght: " << this->_body.length() << std::endl;
             chunkSizeRemaining -= chunkDataAvailable;
             bufferIndex += chunkDataAvailable;
@@ -209,6 +220,7 @@ int Request::processBody(const std::string &buffer)
                     bufferIndex += 2; // Skip past the \r\n after the chunk
                 } else {
                     this->_logger.error("Invalid Chunked (Missing CRLF after chunk data)");
+                    std::cout << "buffer: " << buffer << std::endl;
                     return -1;
                 }
             }

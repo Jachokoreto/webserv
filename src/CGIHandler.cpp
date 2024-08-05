@@ -41,6 +41,11 @@ ssize_t writeAllBytes(int fd, char *data, size_t bytes)
 
 	ssize_t totalWritten = -1;
 
+	// fd_set fds;
+	// FD_ZERO(&fds);
+	// FD_SET(fd, &fds);
+	// struct timeval tv = {1, 0}; // 3 secs, 0 usecs
+
 	while (bytes > 0)
 	{
 		size_t bytesToWrite = bytes;
@@ -48,6 +53,7 @@ ssize_t writeAllBytes(int fd, char *data, size_t bytes)
 		{
 			bytesToWrite = CHUNK_SIZE;
 		}
+		ssize_t bytesWritten = 0;
 
 		ssize_t bytesWritten = write(fd, buf, bytesToWrite);
 		if (bytesWritten <= 0)
@@ -61,7 +67,8 @@ ssize_t writeAllBytes(int fd, char *data, size_t bytes)
 				}
 				else
 				{
-					std::cout << "error on write, not eagain: " << errno << std::endl;
+					std::cout << "error on write, not eagain" << std::endl;
+					perror("write:");
 					break;
 				}
 			}
@@ -113,24 +120,19 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		std::vector<const char *const> env;
 		std::vector<const char *const> arg;
 
-		env.push_back(utl::toString("CONTENT_LENGTH=" + utl::toString(request.getBody().length())).c_str());
+		env.push_back(strdup(utl::toString("CONTENT_LENGTH=" + utl::toString(request.getBody().length())).c_str()));
 		env.push_back(strdup(utl::toString("PATH_INFO=" + request.getUri()).c_str())); // the
 		env.push_back(strdup(utl::toString("REQUEST_METHOD=" + request.getMethod()).c_str()));
 		env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 		env.push_back(NULL);
 
-		arg.push_back(strdup(routeDetails.cgiPass.c_str()));
-		arg.push_back(strdup(request.getUri().c_str()));
+		// arg.push_back(strdup(routeDetails.cgiPass.c_str()));
+		// arg.push_back(strdup(request.getUri().c_str()));
+		arg.push_back("/usr/bin/python3");
+		arg.push_back("cgi-python.py");
 		arg.push_back(NULL);
 
-		// char *args[] = {"/bin/cat", nullptr};
-
-		// // Using the current environment
-		// extern char **environ;
-
-		execve(arg[0], (char *const *)arg.data(), (char *const *)env.data());
-		// execve("/bin/cat", args, environ);
-
+		execve(arg[0], const_cast<char *const *>(arg.data()), const_cast<char *const *>(env.data()));
 		perror("execve failed");
 		exit(EXIT_FAILURE);
 	}
@@ -180,10 +182,7 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		remove("temp-output-file.txt");
 
 		response.setStatusCode(200);
-		// size_t needle = responseBody.find("\r\n\r\n");
-		// std::cout << "After substr:" <<  responseBody.substr(0, needle) << std::endl;
-		// response.parseHeaders(utl::splitStringByDelim(responseBody.substr(0, needle), '\n'));
-		// // Create an output file stream (ofstream) object
+
 		std::ofstream outFile;
 
 		// Open the file
