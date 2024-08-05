@@ -50,18 +50,18 @@ ssize_t writeAllBytes(int fd, char *data, size_t bytes)
 		}
 
 		ssize_t bytesWritten = write(fd, buf, bytesToWrite);
-		usleep(100000);
 		if (bytesWritten <= 0)
 		{
 			if (bytesWritten == -1)
 			{
-				if (errno == EAGAIN)
+				if (errno == EAGAIN || errno == EWOULDBLOCK)
 				{
-					sleep(1);
+					std::cout << errno << std::endl;
+					usleep(2000);
 				}
 				else
 				{
-					std::cout << "error on write, not eagain" << std::endl;
+					std::cout << "error on write, not eagain: " << errno << std::endl;
 					break;
 				}
 			}
@@ -83,38 +83,17 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 {
 	(void)routeDetails;
 	(void)fullPath;
-	// We use two pipes
-	// First pipe to send input string from parent
-	// Second pipe to send concatenated string from child
 
-	int c[2]; // Used to store two ends of first pipe
-	int p[2]; // Used to store two ends of second pipe
+	int initialFd = open("temp-initial-file.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
+	int outputFd = open("temp-output-file.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
 
-	// char buffer[PATH_MAX];
-	// if (getcwd(buffer, sizeof(buffer)) != nullptr)
-	// {
-	// 	std::cout << "Current Path: " << buffer << std::endl;
-	// }
-	// else
-	// {
-	// 	perror("getcwd() error");
-	// }
+	// Set pipes to non-blocking to handle large data volumes better
+	// fcntl(c[1], F_SETFL, O_NONBLOCK);
+	// fcntl(p[0], F_SETFL, O_NONBLOCK);
 
-	if (pipe(c) == -1)
-	{
-		perror("pipe failed");
-		return true;
-	}
-	if (pipe(p) == -1)
-	{
-		perror("pipe failed");
-		return true;
-	}
-
-	// if (fcntl(c[1], F_SETFL, O_NONBLOCK) < 0)
-	// 	exit(2);
-	// if (fcntl(p[0], F_SETFL, O_NONBLOCK) < 0)
-	// 	exit(2);
+	std::string requestBody = request.getBody();
+	writeAllBytes(initialFd, const_cast<char *>(requestBody.c_str()), requestBody.size());
+	lseek(initialFd, 0, SEEK_SET);
 
 	pid_t pid = fork();
 	if (pid == -1)
@@ -124,14 +103,12 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 	}
 
 	if (pid == 0)
-	{							  // Child process
-		dup2(c[0], STDIN_FILENO); // Redirect stdin to pipe read end
-		// close(c[0]);			  // Close read end
-		close(c[1]); // Close chile write end
+	{								   // Child process
+		dup2(initialFd, STDIN_FILENO); // Redirect stdin to pipe read end
+		// close(initialFd);
 
-		dup2(p[1], STDOUT_FILENO); // Redirect stdout to pipe write end
-		close(p[0]);			   // Close parent read end
-		// close(p[1]);			   // Close write end
+		dup2(outputFd, STDOUT_FILENO); // Redirect stdout to pipe write end
+		// close(outputFd);
 
 		std::vector<const char *const> env;
 		std::vector<const char *const> arg;
@@ -146,42 +123,61 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		arg.push_back(strdup(request.getUri().c_str()));
 		arg.push_back(NULL);
 
+		// char *args[] = {"/bin/cat", nullptr};
+
+		// // Using the current environment
+		// extern char **environ;
+
 		execve(arg[0], (char *const *)arg.data(), (char *const *)env.data());
+		// execve("/bin/cat", args, environ);
+
 		perror("execve failed");
 		exit(EXIT_FAILURE);
 	}
 	else
 	{ // Parent process
+		// close(initialFd);
+		close(outputFd);
+		// if (!request.getBody().empty())
+		// {
+		// 	std::string tmp = request.getBody();
+		// 	std::cout << "body len: " << tmp.length() << std::endl;
+		// 	writeAllBytes(c[1], (char *)tmp.c_str(), tmp.length());
+		// }
 
-		usleep(1000000);
-		if (!request.getBody().empty())
-		{
-			std::string tmp = request.getBody();
-			std::cout << "body len: " << tmp.length() << std::endl;
-			writeAllBytes(c[1], (char *)tmp.c_str(), tmp.length());
-		}
-		close(c[0]); // Close write end
-		close(c[1]);
-		close(p[1]); // Close write end
-
-		char buffer[6000 + 1];
-		std::string responseBody;
-		size_t total_bytes = 0;
-		ssize_t bytes_read = -1;
-		this->_logger.log("start read...");
-		while (bytes_read != 0)
-		{
-			bytes_read = read(p[0], buffer, 6000);
-			if (bytes_read > 0)
-			{
-				buffer[bytes_read] = '\0';
-				responseBody.append(std::string(buffer, bytes_read));
-			}
-			total_bytes += bytes_read;
-			usleep(10000);
-		}
+		// close(c[1]);
 		waitpid(pid, NULL, 0);
-		close(p[0]); // Close read end
+
+		// std::string responseBody;
+		// char buffer[4096];
+		// ssize_t bytes_read;
+		// this->_logger.log("start read...");
+		// while ((bytes_read = read(outputFd, buffer, sizeof(buffer) - 1)) > 0)
+		// {
+		// 	// buffer[bytes_read] = '\0';
+		// 	responseBody.append(std::string(buffer, bytes_read));
+		// }
+
+		std::string responseBody;
+		std::ifstream inFile("temp-output-file.txt");
+		if (!inFile.is_open())
+		{
+			std::cerr << "Failed to read output file." << std::endl;
+			return false;
+		}
+
+		std::string line;
+		while (getline(inFile, line))
+		{
+			responseBody += line + "\n";
+		}
+		inFile.close();
+
+		// close(p[0]); // Close read end
+		close(initialFd);
+		close(outputFd);
+		remove("temp-initial-file.txt");
+		remove("temp-output-file.txt");
 
 		response.setStatusCode(200);
 		// size_t needle = responseBody.find("\r\n\r\n");
@@ -207,14 +203,13 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		outFile.close();
 
 		std::cout << "Data has been written to the file." << std::endl;
-		std::cout << "Total bytes appended: " << total_bytes << std::endl;
 		// responseBody = responseBody.substr(responseBody.find("\r\n\r\n") + 4);
 		response.addHeader("Content-Type", "*/*");
 		response.setBody(responseBody);
 		// 135226
 		// response.setResponseString(responseBody);
-		close(c[0]);
-		close(p[1]);
+		// close(c[0]);
+		// close(p[1]);
 		return true;
 	}
 }

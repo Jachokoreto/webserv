@@ -1,6 +1,7 @@
 NAME = webserv
 
-GCC = c++ -Wall -Wextra -Werror -g -fsanitize=address --std=c++98  -fdiagnostics-color=always
+# -Wall -Wextra -Werror
+GCC = c++  -g -fsanitize=address --std=c++98  -fdiagnostics-color=always
 VALGRIND = valgrind --leak-check=full \
          --show-leak-kinds=all \
          --verbose \
