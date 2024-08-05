@@ -74,8 +74,8 @@ std::ostream &operator<<(std::ostream &o, Connection const &i)
 
 bool Connection::readData()
 {
-	char buf[BUFFER_SIZE+1]; // buffer for client data
-	memset(buf, 0, BUFFER_SIZE +1);
+	char buf[BUFFER_SIZE + 1]; // buffer for client data
+	memset(buf, 0, BUFFER_SIZE + 1);
 	ssize_t bytes_read = recv(fd, buf, BUFFER_SIZE, 0);
 	size_t needle;
 
@@ -96,13 +96,13 @@ bool Connection::readData()
 		int res = _request->processBody(_buffer);
 		if (res == 1)
 		{
-			this->_logger.info("handle with body"); 
+			this->_logger.info("handle with body");
 			_serverBlock->router.routeRequest(*_request, *_response);
 		}
 		if (res != -1)
 			_buffer.clear();
 	}
-	else 
+	else
 	{
 		needle = _buffer.find("\r\n\r\n");
 		if (needle != std::string::npos)
@@ -111,8 +111,8 @@ bool Connection::readData()
 			{
 				_request = new Request(_buffer.substr(0, needle + 4));
 				_response = new Response();
-				
-				int res = _request->checkIfHandleWithoutBody(); 
+
+				int res = _request->checkIfHandleWithoutBody();
 				if (res == 1)
 				{
 					this->_logger.info("handle without body");
@@ -138,10 +138,9 @@ bool Connection::readData()
 				_buffer.clear();
 				return false;
 			}
-				_buffer.clear();
+			_buffer.clear();
 		}
 	}
-
 
 	return true;
 }
@@ -151,9 +150,12 @@ bool Connection::sendData(void)
 	const std::string resString = _response->toString();
 	if (resString.empty())
 	{
+		// _logger.log("Response not ready yet");
 		return false;
 	}
-	// std::cout << "content length: " << _response->getHeader("Content-Length") << std::endl;
+	std::cout << "content length: " << _response->getHeader("Content-Length") << std::endl;
+	// char * cstr = (char *)resString.c_str();
+	// cstr[resString.length()] = '\0';
 	ssize_t bytes_sent = send(fd, resString.c_str(), resString.length(), 0);
 	if (bytes_sent == -1)
 	{
@@ -162,21 +164,66 @@ bool Connection::sendData(void)
 	}
 	if ((unsigned long)bytes_sent < resString.length())
 	{
-		this->_logger.log("didnt send finish, sent: " + utl::toString(bytes_sent));
+		this->_logger.log("didnt send finish");
 		_response->truncateResponse(bytes_sent);
 		return false;
 	}
-	if (!this->_response->getIsDone())
-	{
-		return false;
-	}
-	_logger.log("Finished sending response");
+	_logger.log("sent data");
 	return true;
 }
 
+// bool Connection::sendData()
+// {
+// 	std::cout << "SENDING DATA NOW\n"
+// 			  << std::endl;
+
+// 	this->_response->addHeader("Transfer-Encoding", "chunked");
+// 	std::cout << (this->_response->getHeader("Transfer-Encoding")) << std::endl;
+// 	usleep(5000);
+// 	std::string data = this->_response->toString();
+// 	size_t offset = 0;
+// 	size_t chunkSize = 4096; // You can adjust the chunk size.
+
+// 	std::cout << "piupiu\n"
+// 			  << data << std::endl;
+
+// 	while (offset < data.size())
+// 	{
+// 		size_t sizeToSend = std::min(chunkSize, data.size() - offset);
+// 		// std::cout << sizeToSend << std::endl;
+// 		std::stringstream chunkHeader;
+// 		chunkHeader << std::hex << sizeToSend << "\r\n";
+
+// 		std::string chunk = chunkHeader.str() + data.substr(offset, sizeToSend) + "\r\n";
+
+// 		// std::cout << "send loop: " << data.size() - offset << std::endl;
+// 		ssize_t bytesSent = send(fd, chunk.c_str(), chunk.length(), 0);
+
+// 		// std::cout << "!!" << std::endl;
+// 		if (bytesSent == -1)
+// 		{
+// 			perror("send");
+// 			return false; // Stop sending on error.
+// 		}
+
+// 		offset += sizeToSend;
+// 		// std::cout << "offset: " << offset << std::endl;
+// 		usleep(5000);
+// 	}
+
+// 	std::cout << "out here" << std::endl;
+// 	std::string endChunk = "0\r\n\r\n"; // Send the ending empty chunk to complete the transfer.
+// 	send(fd, endChunk.c_str(), endChunk.length(), 0);
+
+// 	std::cout << "send last" << std::endl;
+
+// 	_logger.log("Sent chunked data");
+// 	return true;
+// }
+
 bool Connection::hasResponse()
 {
-	return _response != NULL && !_response->toString().empty();
+	return _response != NULL && _response->getReady();
 }
 
 /*

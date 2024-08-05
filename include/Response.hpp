@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 16:42:28 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/18 23:15:01 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/06 00:27:56 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ public:
 	std::string toString();
 	void errorResponse(int status, std::string message);
 	void truncateResponse(unsigned long length);
+	int getReady(void);
 	void setReady(int status);
 	void setResponseString(std::string string);
 };

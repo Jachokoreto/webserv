@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 18:03:07 by chenlee           #+#    #+#             */
-/*   Updated: 2024/04/14 15:22:11 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/06 00:17:00 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,29 +44,27 @@ const std::map<std::string, std::string> HttpMessage::getAllHeaders() const
 void HttpMessage::parseHeaders(std::vector<std::string> split)
 {
 
-	    // from split separate body and header, seperator is """
-    std::vector<std::string>::iterator headerEndIterator = std::find(split.begin() + 1, split.end(), "");
-    // std::vector<std::string> header(split.begin() + 1, iterator);
-    for (std::vector<std::string>::iterator startIt = split.begin() + 1; startIt != headerEndIterator; startIt++)
-    {
+	// from split separate body and header, seperator is """
+	std::vector<std::string>::iterator headerEndIterator = std::find(split.begin() + 1, split.end(), "");
+	// std::vector<std::string> header(split.begin() + 1, iterator);
+	for (std::vector<std::string>::iterator startIt = split.begin() + 1; startIt != headerEndIterator; startIt++)
+	{
 		// std::cout << *startIt << std::endl;
-        std::size_t delimPos = startIt->find(": ");
-        if (delimPos != std::string::npos && delimPos != 0)
-        {
-            std::string key = startIt->substr(0, delimPos);
-            std::string value = startIt->substr(delimPos + 2);
-            std::string::size_type pos;
+		std::size_t delimPos = startIt->find(": ");
+		if (delimPos != std::string::npos && delimPos != 0)
+		{
+			std::string key = startIt->substr(0, delimPos);
+			std::string value = startIt->substr(delimPos + 2);
+			std::string::size_type pos;
 
-            if ((pos = value.find("\r")) != std::string::npos) {
-                value.erase(pos, 2);
-            }
-            this->addHeader(key, value);
-        }
-    }
-
+			if ((pos = value.find("\r")) != std::string::npos)
+			{
+				value.erase(pos, 2);
+			}
+			this->addHeader(key, value);
+		}
+	}
 };
-
-
 
 HttpMessage::HttpMessage() {}
 

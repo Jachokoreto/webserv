@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:58:14 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/04 02:50:20 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/06 00:10:22 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ RouteDetails *Router::getRouteDetails(const std::string &path, const routeTableM
 
 void Router::routeRequest(const Request &request, Response &response)
 {
-	response.addHeader("Connection", "closed");
+	// response.addHeader("Connection", "closed");
 
 	RouteDetails *routeDetail = getRouteDetails(request.getUri(), this->_routeTable);
 	if (routeDetail)
