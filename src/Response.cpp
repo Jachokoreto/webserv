@@ -80,6 +80,7 @@ std::string Response::toString()
 
 
         responseStream << "\r\n";
+        std::cout << responseStream.str() << std::endl;
         // optional body
         if (this->_body != "")
             responseStream << this->_body << "\n";

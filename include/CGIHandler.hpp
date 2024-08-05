@@ -19,7 +19,7 @@
 #include <cstring>
 #include <fcntl.h>
 
-#define CHUNK_SIZE (2 * 1024)
+#define CHUNK_SIZE (4 * 1024)
 
 class CGIHandler : public RequestHandler
 {
