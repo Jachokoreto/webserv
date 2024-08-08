@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/14 16:12:06 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/06 02:01:11 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/09 02:13:41 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,20 +71,39 @@ std::string Response::toString()
 	// optional body
 	if (bodyLen > 0)
 	{
+		// if (isChunked)
+		// {
+		// 	int chunk_size = bodyLen <= BODY_SIZE ? bodyLen : BODY_SIZE;
+		// 	std::ostringstream ss;
+		// 	ss << std::hex << chunk_size;
+		// 	responseStream << ss.str() << "\r\n"
+		// 				   << this->_body.substr(0, chunk_size) << "\r\n";
+		// 	this->_body = this->_body.substr(chunk_size);
+		// 	std::cout << responseStream.str() << std::endl;
+		// }
+		// else
+		// {
+		// 	responseStream << this->_body;
+		// 	this->_isDone = true;
+		// }
 		if (isChunked)
 		{
-			int chunk_size = bodyLen <= BODY_SIZE ? bodyLen : BODY_SIZE;
-			std::ostringstream ss;
-			ss << std::hex << chunk_size;
-			responseStream << ss.str() << "\r\n"
-						   << this->_body.substr(0, chunk_size) << "\r\n";
-			this->_body = this->_body.substr(chunk_size);
-			std::cout << responseStream.str() << std::endl;
+			size_t pos = 0; // Position in the body
+			while (pos < bodyLen)
+			{
+				size_t remaining = bodyLen - pos;
+				size_t chunkSize = remaining < BODY_SIZE ? remaining : BODY_SIZE; // Manually calculate the minimum
+				responseStream << std::hex << chunkSize << "\r\n";
+				responseStream << _body.substr(pos, chunkSize) << "\r\n";
+				pos += chunkSize;
+			}
+			responseStream << "0\r\n\r\n"; // End of chunks
+			_isDone = true;				   // Mark the response as complete
 		}
 		else
 		{
-			responseStream << this->_body;
-			this->_isDone = true;
+			responseStream << _body;
+			_isDone = true;
 		}
 	}
 	else if (bodyLen == 0 && isChunked && !this->_isDone)
@@ -101,11 +120,34 @@ std::string Response::toString()
 	return this->_responseString;
 }
 
-void Response::errorResponse(int statusCode, std::string message)
+std::string readFile(const std::string &filePath)
 {
-	(void)message;
+	std::ifstream fileStream(filePath, std::ios::in | std::ios::binary);
+	if (!fileStream)
+	{
+		std::cerr << "Cannot open file: " << filePath << std::endl;
+		return "";
+	}
+	std::ostringstream content;
+	content << fileStream.rdbuf();
+	return content.str();
+}
+
+void Response::errorResponse(int statusCode, const std::string &errorMessage)
+{
+	std::string errorFilePath = "public/custom_" + std::to_string(statusCode) + ".html";
+	std::string errorContent = readFile(errorFilePath);
+
+	if (errorContent.empty())
+	{
+		// If the error file is not found or is empty, use a default message
+		errorContent = "<html><body><h1>" + std::to_string(statusCode) + " " + errorMessage + "</h1></body></html>";
+	}
+
 	setStatusCode(statusCode);
-	// _logger.error(message);
+	setBody(errorContent);
+	addHeader("Content-Type", "text/html");
+	_isDone = true; // Indicate that the response is ready to be sent
 }
 
 void Response::truncateResponse(unsigned long length)

@@ -153,7 +153,6 @@ bool Connection::sendData(void)
 		// _logger.log("Response not ready yet");
 		return false;
 	}
-	std::cout << "content length: " << _response->getHeader("Content-Length") << std::endl;
 	// char * cstr = (char *)resString.c_str();
 	// cstr[resString.length()] = '\0';
 	ssize_t bytes_sent = send(fd, resString.c_str(), resString.length(), 0);
