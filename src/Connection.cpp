@@ -93,7 +93,7 @@ bool Connection::readData()
 				_request = new Request(_buffer.substr(0, needle + 4));
 				_response = new Response();
 
-				if (_request->getHeader("Host") != _serverBlock->getHostname())
+				if ((_request->getHeader("Host") != _serverBlock->getHostname()) && (_request->getHeader("Host") != "localhost"))
 				{
 					_response->errorResponse(404, "Hostname not recognized");
 					return true;

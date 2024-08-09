@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:58:26 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/09 22:31:57 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 03:20:55 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,9 +114,14 @@ bool handleDeleteRequest(Response &response, const std::string &fullPath, const 
 	if (S_ISREG(path_stat.st_mode))
 	{
 		if (remove(fullPath.c_str()) == 0)
-			response.setStatusCode(202);
+			response.setStatusCode(200);
 		else
 			response.errorResponse(500, "Unable to delete file");
+		return true;
+	}
+	else
+	{
+		response.errorResponse(403, "Cannot delete directory");
 		return true;
 	}
 	return false;
