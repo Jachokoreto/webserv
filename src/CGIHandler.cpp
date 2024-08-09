@@ -133,10 +133,16 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 		env.push_back(NULL);
 
-		// arg.push_back(strdup(routeDetails.cgiPass.c_str()));
-		// arg.push_back(strdup(request.getUri().c_str()));
-		arg.push_back("/usr/bin/python3");
-		arg.push_back("cgi-python.py");
+		if (response.getHeader("Content-Type") != "test/file")
+		{
+			arg.push_back(strdup(routeDetails.cgiPass.c_str()));
+			arg.push_back(strdup(request.getUri().c_str()));
+		}
+		else
+		{
+			arg.push_back("/usr/bin/python3");
+			arg.push_back("cgi-python.py");
+		}
 		arg.push_back(NULL);
 
 		execve(arg[0], const_cast<char *const *>(arg.data()), const_cast<char *const *>(env.data()));
@@ -210,6 +216,53 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 
 		response.setStatusCode(200);
 		response.addHeader("Content-Type", "*/*");
+		// std::cout << "responseBody: " << responseBody.substr(0, 10) << std::endl;
+		// if (!responseBody.empty())
+		// {
+		// 	size_t pos = responseBody.find("\n\n");
+		// 	if (pos != std::string::npos)
+		// 	{
+		// 		std::vector<std::string> headers = utl::splitStringByDelim(responseBody.substr(0, pos), '\n');
+		// 		response.parseHeaders(headers);
+		// 		std::cout << "header:" << response.getHeader("Content-Type") << "???" << std::endl;
+		// 		responseBody = responseBody.substr(pos + 4);
+		// 	}
+		// 	else
+		// 	{
+		// 		std::cout << " no find "<< std::endl;
+		// 	}
+		// }
+		// response.setBody(responseBody);
+
+		size_t pos = responseBody.find("\r\n\r\n");
+		std::string headers;
+		// std::string body;
+
+		if (pos != std::string::npos)
+		{
+			headers = responseBody.substr(0, pos);
+			responseBody = responseBody.substr(pos + 4); // skip "\r\n\r\n"
+		}
+		else
+		{
+			// Fallback for just "\n\n" if "\r\n\r\n" isn't found
+			pos = responseBody.find("\n\n");
+			if (pos != std::string::npos)
+			{
+				headers = responseBody.substr(0, pos);
+				responseBody = responseBody.substr(pos + 2); // skip "\n\n"
+			}
+			else
+			{
+				// No headers found, treat the whole thing as the body
+				responseBody = responseBody;
+			}
+		}
+
+		std::cout << "Headers:\n"
+				  << headers << "\n\n";
+		std::cout << "Body:\n"
+				  << responseBody.substr(0, 10) << "\n";
 		response.setBody(responseBody);
 		return true;
 	}

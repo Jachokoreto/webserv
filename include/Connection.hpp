@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 19:45:34 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/18 23:57:13 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 01:48:39 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@
 
 #include "macro.h"
 
-#define BUFFER_SIZE 8192
+#define BUFFER_SIZE 10000
 
 class Connection
 {

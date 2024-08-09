@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 23:19:09 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/09 23:02:19 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 02:09:43 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,7 +176,7 @@ int Request::processBody(const std::string &buffer)
 
 	size_t bufferIndex = 0;
 
-	usleep(1 * 5000);
+    // usleep(1 * 5000);
 
 	if (this->getHeader("Transfer-Encoding").compare("chunked") == 0)
 	{
