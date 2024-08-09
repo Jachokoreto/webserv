@@ -126,10 +126,10 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 		env.push_back(NULL);
 
-		// arg.push_back(strdup(routeDetails.cgiPass.c_str()));
-		// arg.push_back(strdup(request.getUri().c_str()));
-		arg.push_back("/usr/bin/python3");
-		arg.push_back("cgi-python.py");
+		arg.push_back(strdup(routeDetails.cgiPass.c_str()));
+		arg.push_back(strdup(request.getUri().c_str()));
+		// arg.push_back("/usr/bin/python3");
+		// arg.push_back("cgi-python.py");
 		arg.push_back(NULL);
 
 		execve(arg[0], const_cast<char *const *>(arg.data()), const_cast<char *const *>(env.data()));
@@ -171,44 +171,19 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		std::string line;
 		while (getline(inFile, line))
 		{
-			responseBody += line + "\n";
+			responseBody += line;
 		}
 		inFile.close();
 
 		// close(p[0]); // Close read end
 		close(initialFd);
 		close(outputFd);
-		remove("temp-initial-file.txt");
-		remove("temp-output-file.txt");
+		// remove("temp-initial-file.txt");
+		// remove("temp-output-file.txt");
 
 		response.setStatusCode(200);
-
-		std::ofstream outFile;
-
-		// Open the file
-		outFile.open("example");
-
-		// Check if the file is open
-		if (!outFile.is_open())
-		{
-			std::cerr << "Failed to open the file." << std::endl;
-			return 1;
-		}
-
-		// Write the string to the file
-		outFile << responseBody;
-
-		// Close the file stream
-		outFile.close();
-
-		std::cout << "Data has been written to the file." << std::endl;
-		// responseBody = responseBody.substr(responseBody.find("\r\n\r\n") + 4);
 		response.addHeader("Content-Type", "*/*");
 		response.setBody(responseBody);
-		// 135226
-		// response.setResponseString(responseBody);
-		// close(c[0]);
-		// close(p[1]);
 		return true;
 	}
 }
