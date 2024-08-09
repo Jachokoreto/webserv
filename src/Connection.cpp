@@ -8,21 +8,11 @@ int Connection::_connectionCount = 0;
 
 Connection::Connection(int fd, ServerBlock *serverBlock) : fd(fd), _serverBlock(serverBlock), _logger(Logger("Connection"))
 {
-	// this->_index = this->_connectionCount++;
-	// std::stringstream ss;
-	// ss << "created " << this->_index;;
-	// this->_logger.log(ss.str());
-	// std::cout << this->_requestString << std::endl;
-	std::cout << "\n\n======NEW REQUEST========" << std::endl;
 	this->_logger.log("Connection created at fd " + utl::toString(fd));
 	_request = NULL;
 	_response = NULL;
 	_buffer.clear();
 }
-
-// Connection::Connection(): _logger(Logger("Connection")), _serverBlock()
-// {
-// }
 
 Connection::Connection(const Connection &src) : _logger(Logger("Connection"))
 {
@@ -30,15 +20,11 @@ Connection::Connection(const Connection &src) : _logger(Logger("Connection"))
 	_request = src._request;
 	_response = src._response;
 	_buffer = src._buffer;
-	// this->_index = this->_connectionCount++;
 	fd = src.fd;
 }
 
 Connection::~Connection()
 {
-	// std::stringstream ss;
-	// ss << "deleted  " << this->_index;
-	// this->_logger.error(ss.str());
 	delete _request;
 	delete _response;
 	this->_logger.log("Connection closed at fd " + utl::toString(fd));
@@ -170,55 +156,6 @@ bool Connection::sendData(void)
 	_logger.log("sent data");
 	return true;
 }
-
-// bool Connection::sendData()
-// {
-// 	std::cout << "SENDING DATA NOW\n"
-// 			  << std::endl;
-
-// 	this->_response->addHeader("Transfer-Encoding", "chunked");
-// 	std::cout << (this->_response->getHeader("Transfer-Encoding")) << std::endl;
-// 	usleep(5000);
-// 	std::string data = this->_response->toString();
-// 	size_t offset = 0;
-// 	size_t chunkSize = 4096; // You can adjust the chunk size.
-
-// 	std::cout << "piupiu\n"
-// 			  << data << std::endl;
-
-// 	while (offset < data.size())
-// 	{
-// 		size_t sizeToSend = std::min(chunkSize, data.size() - offset);
-// 		// std::cout << sizeToSend << std::endl;
-// 		std::stringstream chunkHeader;
-// 		chunkHeader << std::hex << sizeToSend << "\r\n";
-
-// 		std::string chunk = chunkHeader.str() + data.substr(offset, sizeToSend) + "\r\n";
-
-// 		// std::cout << "send loop: " << data.size() - offset << std::endl;
-// 		ssize_t bytesSent = send(fd, chunk.c_str(), chunk.length(), 0);
-
-// 		// std::cout << "!!" << std::endl;
-// 		if (bytesSent == -1)
-// 		{
-// 			perror("send");
-// 			return false; // Stop sending on error.
-// 		}
-
-// 		offset += sizeToSend;
-// 		// std::cout << "offset: " << offset << std::endl;
-// 		usleep(5000);
-// 	}
-
-// 	std::cout << "out here" << std::endl;
-// 	std::string endChunk = "0\r\n\r\n"; // Send the ending empty chunk to complete the transfer.
-// 	send(fd, endChunk.c_str(), endChunk.length(), 0);
-
-// 	std::cout << "send last" << std::endl;
-
-// 	_logger.log("Sent chunked data");
-// 	return true;
-// }
 
 bool Connection::hasResponse()
 {

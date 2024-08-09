@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/14 16:12:06 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/09 18:15:25 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/09 23:23:56 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,11 +49,11 @@ std::string Response::toString()
 
 		if (bodyLen > 0)
 		{
-			this->addHeader("Content-Length", utl::toString(bodyLen));
+			// this->addHeader("Content-Length", utl::toString(bodyLen));
 
 			if (bodyLen <= BODY_SIZE)
 			{
-				// this->addHeader("Content-Length", utl::toString(this->getBody().length()));
+				this->addHeader("Content-Length", utl::toString(this->getBody().length()));
 			}
 			else
 			{

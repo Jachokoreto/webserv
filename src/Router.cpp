@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:58:14 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/06 00:10:22 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 00:21:07 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ Router::~Router()
 void Router::addRoute(const std::string &path, RouteDetails *routeDetail)
 {
 	this->_routeTable[path] = routeDetail;
-	std::cout << "methods: " << routeDetail->allowedMethods << std::endl;
+	// std::cout << "methods: " << routeDetail->allowedMethods << std::endl;
 }
 
 void Router::assignHandlers(requestHandlerVec &handlers)
@@ -166,15 +166,15 @@ void Router::routeRequest(const Request &request, Response &response)
 			if ((*it)->handleRequest(request, response, *routeDetail, fullPath))
 				return;
 		}
-		if (request.getMethod() == "GET")
-		{
-			_logger.log("sending default plain success");
-			response.setStatusCode(200);
-			response.addHeader("Content-Type", "text/html");
-			// response.addHeader("Connection", "closed");
-			response.setBody("<html>Welcome to the webserv, example.re homepage!</html>");
-			return;
-		}
+		// if (request.getMethod() == "GET")
+		// {
+		// 	_logger.log("sending default plain success");
+		// 	response.setStatusCode(200);
+		// 	response.addHeader("Content-Type", "text/html");
+		// 	// response.addHeader("Connection", "closed");
+		// 	response.setBody("<html>Welcome to the webserv, example.re homepage!</html>");
+		// 	return;
+		// }
 		// reach here if no handler found in the loop above
 		response.errorResponse(404, "no handler found");
 	}
@@ -184,11 +184,11 @@ void Router::routeRequest(const Request &request, Response &response)
 
 void Router::display(void) const
 {
-	std::cout << "Router Table:" << std::endl;
-	for (std::map<std::string, RouteDetails *>::const_iterator it = this->_routeTable.begin(); it != this->_routeTable.end(); it++)
-	{
-		std::cout << std::left << std::setw(20) << it->first << std::endl;
-	}
+	// std::cout << "Router Table:" << std::endl;
+	// for (std::map<std::string, RouteDetails *>::const_iterator it = this->_routeTable.begin(); it != this->_routeTable.end(); it++)
+	// {
+	// 	std::cout << std::left << std::setw(20) << it->first << std::endl;
+	// }
 }
 
 //  /jaclyn/bombom.html

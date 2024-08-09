@@ -31,7 +31,6 @@ void testAutoindex(void)
 	RouteDetails routeDetails;
 	routeDetails.root = "/Users/user/sidess/webserv/public";
 	autoindexHandler.handleRequest(req, res, routeDetails, "/Users/user/sidess/webserv/public");
-	std::cout << res.toString() << std::endl;
 }
 
 void testCGI(void)
@@ -42,9 +41,7 @@ void testCGI(void)
 	RouteDetails routeDetails;
 	routeDetails.allowedMethods = POST;
 	routeDetails.cgiPass = "CGI-tester";
-	std::cout << "testCGI" << std::endl;
 	cgiHandler.handleRequest(req, res, routeDetails, "/Users/user/sidess/webserv/YoupiBanane/youpi.bla");
-	std::cout << res.toString() << std::endl;
 }
 
 void testWebserver(void)

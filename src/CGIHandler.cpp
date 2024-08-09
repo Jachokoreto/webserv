@@ -62,12 +62,10 @@ ssize_t writeAllBytes(int fd, char *data, size_t bytes)
 			{
 				if (errno == EAGAIN || errno == EWOULDBLOCK)
 				{
-					std::cout << errno << std::endl;
 					usleep(2000);
 				}
 				else
 				{
-					std::cout << "error on write, not eagain" << std::endl;
 					perror("write:");
 					break;
 				}
@@ -91,16 +89,25 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 	(void)routeDetails;
 	(void)fullPath;
 
-	int initialFd = open("temp-initial-file.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
-	int outputFd = open("temp-output-file.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
+	// int initialFd = open("temp-initial-file.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
+	// int outputFd = open("temp-output-file.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
+
+	int c[2];
+	int p[2];
+
+	if (pipe(c) == -1 || pipe(p) == -1)
+	{
+		perror("pipe failed");
+		return true;
+	}
 
 	// Set pipes to non-blocking to handle large data volumes better
 	// fcntl(c[1], F_SETFL, O_NONBLOCK);
 	// fcntl(p[0], F_SETFL, O_NONBLOCK);
 
-	std::string requestBody = request.getBody();
-	writeAllBytes(initialFd, const_cast<char *>(requestBody.c_str()), requestBody.size());
-	lseek(initialFd, 0, SEEK_SET);
+	// std::string requestBody = request.getBody();
+	// writeAllBytes(initialFd, const_cast<char *>(requestBody.c_str()), requestBody.size());
+	// lseek(initialFd, 0, SEEK_SET);
 
 	pid_t pid = fork();
 	if (pid == -1)
@@ -110,12 +117,12 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 	}
 
 	if (pid == 0)
-	{								   // Child process
-		dup2(initialFd, STDIN_FILENO); // Redirect stdin to pipe read end
-		// close(initialFd);
+	{							  // Child process
+		dup2(c[0], STDIN_FILENO); // Redirect stdin to pipe read end
+		close(c[1]);
 
-		dup2(outputFd, STDOUT_FILENO); // Redirect stdout to pipe write end
-		// close(outputFd);
+		dup2(p[1], STDOUT_FILENO); // Redirect stdout to pipe write end
+		close(p[0]);
 
 		std::vector<const char *const> env;
 		std::vector<const char *const> arg;
@@ -126,10 +133,10 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 		env.push_back(NULL);
 
-		arg.push_back(strdup(routeDetails.cgiPass.c_str()));
-		arg.push_back(strdup(request.getUri().c_str()));
-		// arg.push_back("/usr/bin/python3");
-		// arg.push_back("cgi-python.py");
+		// arg.push_back(strdup(routeDetails.cgiPass.c_str()));
+		// arg.push_back(strdup(request.getUri().c_str()));
+		arg.push_back("/usr/bin/python3");
+		arg.push_back("cgi-python.py");
 		arg.push_back(NULL);
 
 		execve(arg[0], const_cast<char *const *>(arg.data()), const_cast<char *const *>(env.data()));
@@ -139,45 +146,65 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 	else
 	{ // Parent process
 		// close(initialFd);
-		close(outputFd);
-		// if (!request.getBody().empty())
-		// {
-		// 	std::string tmp = request.getBody();
-		// 	std::cout << "body len: " << tmp.length() << std::endl;
-		// 	writeAllBytes(c[1], (char *)tmp.c_str(), tmp.length());
-		// }
+		// close(outputFd);
+		if (!request.getBody().empty())
+		{
+			std::string tmp = request.getBody();
+			writeAllBytes(c[1], (char *)tmp.c_str(), tmp.length());
+		}
 
-		// close(c[1]);
-		waitpid(pid, NULL, 0);
-
-		// std::string responseBody;
-		// char buffer[4096];
-		// ssize_t bytes_read;
-		// this->_logger.log("start read...");
-		// while ((bytes_read = read(outputFd, buffer, sizeof(buffer) - 1)) > 0)
-		// {
-		// 	// buffer[bytes_read] = '\0';
-		// 	responseBody.append(std::string(buffer, bytes_read));
-		// }
+		close(c[0]);
+		close(c[1]);
+		close(p[1]);
 
 		std::string responseBody;
-		std::ifstream inFile("temp-output-file.txt");
-		if (!inFile.is_open())
+		char buffer[4096];
+		ssize_t bytes_read;
+		this->_logger.log("start read...");
+		while ((bytes_read = read(p[0], buffer, sizeof(buffer) - 1)) > 0)
 		{
-			std::cerr << "Failed to read output file." << std::endl;
-			return false;
+			buffer[bytes_read] = '\0';
+			responseBody.append(std::string(buffer));
 		}
+		waitpid(pid, NULL, 0);
+		close(p[0]);
 
-		std::string line;
-		while (getline(inFile, line))
-		{
-			responseBody += line;
-		}
-		inFile.close();
+		// std::string responseBody;
+		// std::ifstream inFile("temp-output-file.txt");
+		// if (!inFile.is_open())
+		// {
+		// 	std::cerr << "Failed to read output file." << std::endl;
+		// 	return false;
+		// }
+
+		// std::ofstream outFile;
+
+		// // Open the file
+		// outFile.open("example");
+
+		// // Check if the file is open
+		// if (!outFile.is_open())
+		// {
+		// 	std::cerr << "Failed to open the file." << std::endl;
+		// 	return 1;
+		// }
+
+		// // Write the string to the file
+		// outFile << responseBody;
+
+		// // Close the file stream
+		// outFile.close();
+
+		// std::string line;
+		// while (getline(inFile, line))
+		// {
+		// 	responseBody += line;
+		// }
+		// inFile.close();
 
 		// close(p[0]); // Close read end
-		close(initialFd);
-		close(outputFd);
+		// close(initialFd);
+		// close(outputFd);
 		// remove("temp-initial-file.txt");
 		// remove("temp-output-file.txt");
 

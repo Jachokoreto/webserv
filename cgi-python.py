@@ -13,7 +13,7 @@ def main():
     output_data = input_data.upper()
     
     # Output the transformed data
-    print(output_data)
+    print(output_data, end='', flush=True)
 
 if __name__ == "__main__":
     main()
