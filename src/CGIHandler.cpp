@@ -27,7 +27,7 @@ bool CGIHandler::checkIfHandle(const Request &request, RouteDetails &routeDetail
 	(void)fullPath;
 	if (routeDetails.cgiPass.empty())
 	{
-		this->_logger.info("No cgi pass set");
+		this->_logger.log("No cgi pass set");
 		return false;
 	}
 	return true;
@@ -133,16 +133,17 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 		env.push_back(NULL);
 
-		if (response.getHeader("Content-Type") != "test/file")
-		{
-			arg.push_back(strdup(routeDetails.cgiPass.c_str()));
-			arg.push_back(strdup(request.getUri().c_str()));
-		}
-		else
-		{
-			arg.push_back("/usr/bin/python3");
-			arg.push_back("cgi-python.py");
-		}
+		// if (request.getHeader("X-Secret-Header-For-Test") != "")
+		// {
+		// 	std::cout << "Runinn CGI Tester" << std::endl;
+		// 	arg.push_back(strdup(routeDetails.cgiPass.c_str()));
+		// 	arg.push_back(strdup(request.getUri().c_str()));
+		// }
+		// else
+		// {
+		arg.push_back("/usr/bin/python3");
+		arg.push_back(strdup((fullPath + request.getResource()).c_str()));
+		// }
 		arg.push_back(NULL);
 
 		execve(arg[0], const_cast<char *const *>(arg.data()), const_cast<char *const *>(env.data()));
@@ -166,7 +167,6 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		std::string responseBody;
 		char buffer[4096];
 		ssize_t bytes_read;
-		this->_logger.log("start read...");
 		while ((bytes_read = read(p[0], buffer, sizeof(buffer) - 1)) > 0)
 		{
 			buffer[bytes_read] = '\0';
@@ -251,11 +251,6 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 			{
 				headers = responseBody.substr(0, pos);
 				responseBody = responseBody.substr(pos + 2); // skip "\n\n"
-			}
-			else
-			{
-				// No headers found, treat the whole thing as the body
-				responseBody = responseBody;
 			}
 		}
 

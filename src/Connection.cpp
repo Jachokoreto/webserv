@@ -62,73 +62,84 @@ bool Connection::readData()
 {
 	char buf[BUFFER_SIZE + 1]; // buffer for client data
 	memset(buf, 0, BUFFER_SIZE + 1);
-	ssize_t bytes_read = recv(fd, buf, BUFFER_SIZE, 0);
-	size_t needle;
+	try
+	{
 
-	if (bytes_read == -1)
-	{
-		perror("read");
-		return false;
-	}
-	else if (bytes_read == 0)
-	{
-		this->_logger.log("CLOSE CONNECTION?");
-		return false; // Connection closed by client
-	}
-	_buffer += std::string(buf);
+		ssize_t bytes_read = recv(fd, buf, BUFFER_SIZE, 0);
+		size_t needle;
 
-	if (_request != NULL)
-	{
-		int res = _request->processBody(_buffer);
-		if (res == 1)
+		if (bytes_read == -1)
 		{
-			this->_logger.info("handle with body");
-			_serverBlock->router.routeRequest(*_request, *_response);
+			perror("read");
+			return false;
 		}
-		if (res != -1)
-			_buffer.clear();
-	}
-	else
-	{
-		needle = _buffer.find("\r\n\r\n");
-		if (needle != std::string::npos)
+		else if (bytes_read == 0)
 		{
-			try
-			{
-				_request = new Request(_buffer.substr(0, needle + 4));
-				_response = new Response();
+			this->_logger.log("CLOSE CONNECTION?");
+			return false; // Connection closed by client
+		}
+		_buffer += std::string(buf);
 
-				int res = _request->checkIfHandleWithoutBody();
-				if (res == 1)
+		if (_request != NULL)
+		{
+			int res = _request->processBody(_buffer);
+			if (res == 1)
+			{
+				this->_logger.info("handle with body");
+				_serverBlock->router.routeRequest(*_request, *_response);
+			}
+			if (res != -1)
+				_buffer.clear();
+		}
+		else
+		{
+			needle = _buffer.find("\r\n\r\n");
+			if (needle != std::string::npos)
+			{
+				try
 				{
-					this->_logger.info("handle without body");
-					_serverBlock->router.routeRequest(*_request, *_response);
-				}
-				else if (res == -1)
-				{
-					_response->errorResponse(404, "Invalid body");
-				}
-				else if (res == 0)
-				{
-					_buffer = _buffer.substr(needle + 4);
-					if (_request->processBody(_buffer))
+					_request = new Request(_buffer.substr(0, needle + 4));
+					_response = new Response();
+
+					int res = _request->checkIfHandleWithoutBody();
+					if (res == 1)
 					{
-						this->_logger.info("handle with body");
+						this->_logger.log("handle without body");
 						_serverBlock->router.routeRequest(*_request, *_response);
 					}
+					else if (res == -1)
+					{
+						_response->errorResponse(404, "Invalid body");
+					}
+					else if (res == 0)
+					{
+						_buffer = _buffer.substr(needle + 4);
+						if (_request->processBody(_buffer))
+						{
+							this->_logger.log("handle with body");
+							_serverBlock->router.routeRequest(*_request, *_response);
+						}
+					}
 				}
-			}
-			catch (const std::exception &e)
-			{
-				_logger.error(std::string(e.what()));
+				catch (const std::exception &e)
+				{
+					_logger.error(std::string(e.what()));
+					_buffer.clear();
+					return false;
+				}
 				_buffer.clear();
-				return false;
 			}
-			_buffer.clear();
 		}
+
+		return true;
 	}
 
-	return true;
+	catch (const std::exception &e)
+	{
+		_logger.error(std::string(e.what()));
+		_buffer.clear();
+		return false;
+	}
 }
 
 bool Connection::sendData(void)

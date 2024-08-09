@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpMessage.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 18:03:07 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/09 22:26:42 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 02:37:53 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,9 @@ const std::string HttpMessage::getBody() const
 	return this->_body;
 }
 
-const std::string HttpMessage::getHeader(const std::string &field)
+const std::string HttpMessage::getHeader(const std::string &field) const
 {
-	std::map<std::string, std::string>::iterator it = this->_headers.find(field);
+	std::map<std::string, std::string>::const_iterator it = this->_headers.find(field);
 	if (it != this->_headers.end())
 		return it->second;
 	else

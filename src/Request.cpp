@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 23:19:09 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 02:09:43 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 02:53:13 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ Request::Request(const std::string &requestString) : _logger(Logger("Request")),
 {
 	if (requestString.empty())
 		return;
-	// this->_logger.info("\n" + requestString);
+	this->_logger.info("\n" + requestString);
 	std::vector<std::string> split = utl::splitStringByDelim(requestString, '\n');
 	std::vector<std::string> requestLine = utl::splitStringByDelim(split[0], ' ');
 	const std::string &method = requestLine[0];
@@ -176,7 +176,7 @@ int Request::processBody(const std::string &buffer)
 
 	size_t bufferIndex = 0;
 
-    // usleep(1 * 5000);
+    usleep(2 * 1000);
 
 	if (this->getHeader("Transfer-Encoding").compare("chunked") == 0)
 	{
