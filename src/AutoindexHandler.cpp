@@ -4,7 +4,7 @@
 ** ------------------------- CONSTRUCTOR & DESTRUCTOR --------------------------
 */
 
-AutoindexHandler::AutoindexHandler(): _logger(Logger("AutoindexHandler"))
+AutoindexHandler::AutoindexHandler() : _logger(Logger("AutoindexHandler"))
 {
 }
 
@@ -22,7 +22,7 @@ AutoindexHandler::~AutoindexHandler()
 
 std::string AutoindexHandler::loadHtmlTemplate(void)
 {
-	std::ifstream file("/Users/user/sidess/webserv/autoindex/autoindex.html");
+	std::ifstream file("autoindex/autoindex.html");
 	std::stringstream autoindexTempl;
 
 	if (!file.is_open())
@@ -43,7 +43,8 @@ bool AutoindexHandler::checkIfHandle(const Request &request, RouteDetails &route
 		_logger.log("Autoindex is disabled");
 		return false;
 	}
-	if (!utl::isDirectory(fullPath)) {
+	if (!utl::isDirectory(fullPath))
+	{
 		_logger.log("Not a directory");
 		return false;
 	}
@@ -55,10 +56,10 @@ bool AutoindexHandler::handleRequest(const Request &req, Response &res, RouteDet
 	DIR *dir;
 	dirent *entry;
 	// std::string path = routeDetails.root + req.getResource();
-	std::ifstream file("/autoindex/autoindex.html");
+	std::ifstream file("./autoindex/autoindex.html");
 	std::string autoindexTempl;
 	std::string listingHtml;
-	(void) routeDetails;
+	(void)routeDetails;
 
 	autoindexTempl = loadHtmlTemplate();
 	if (autoindexTempl.empty())
@@ -94,6 +95,7 @@ bool AutoindexHandler::handleRequest(const Request &req, Response &res, RouteDet
 	}
 
 	res.setBody(autoindexTempl);
+	res.setStatusCode(200);
 	return true;
 }
 

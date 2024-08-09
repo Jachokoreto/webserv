@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/14 16:12:06 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/09 23:23:56 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 00:38:08 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,7 @@ std::string readFile(const std::string &filePath)
 
 void Response::errorResponse(int statusCode, const std::string &errorMessage)
 {
+	this->_logger.error(errorMessage);
 	std::string errorFilePath = "public/custom_" + std::to_string(statusCode) + ".html";
 	std::string errorContent = readFile(errorFilePath);
 
