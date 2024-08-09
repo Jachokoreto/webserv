@@ -6,11 +6,9 @@ int Connection::_connectionCount = 0;
 ** ------------------------- CONSTRUCTOR & DESTRUCTOR --------------------------
 */
 
-Connection::Connection(int fd, ServerBlock *serverBlock) : fd(fd), _serverBlock(serverBlock), _logger(Logger("Connection"))
+Connection::Connection(int fd, ServerBlock *serverBlock) : fd(fd), _request(NULL), _response(NULL), _serverBlock(serverBlock), _logger(Logger("Connection"))
 {
 	this->_logger.log("Connection created at fd " + utl::toString(fd));
-	_request = NULL;
-	_response = NULL;
 	_buffer.clear();
 }
 
@@ -65,16 +63,12 @@ bool Connection::readData()
 	ssize_t bytes_read = recv(fd, buf, BUFFER_SIZE, 0);
 	size_t needle;
 
-	if (bytes_read == -1)
+	if (bytes_read <= 0)
 	{
-		perror("read");
+		_logger.log(bytes_read == 0 ? "Connection closed by client" : "Read error");
 		return false;
 	}
-	else if (bytes_read == 0)
-	{
-		this->_logger.log("CLOSE CONNECTION?");
-		return false; // Connection closed by client
-	}
+
 	_buffer += std::string(buf);
 
 	if (_request != NULL)
@@ -95,9 +89,15 @@ bool Connection::readData()
 		{
 			try
 			{
+				std::cout << _buffer.substr(0, needle + 4) << std::endl;
 				_request = new Request(_buffer.substr(0, needle + 4));
 				_response = new Response();
 
+				if (_request->getHeader("Host") != _serverBlock->getHostname())
+				{
+					_response->errorResponse(404, "Hostname not recognized");
+					return true;
+				}
 				int res = _request->checkIfHandleWithoutBody();
 				if (res == 1)
 				{

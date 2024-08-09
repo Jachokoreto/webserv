@@ -96,6 +96,10 @@ void ConfigParser::parseServerConfig(std::stringstream &ss, std::string &key, Se
 	{
 		ss >> server.listen;
 	}
+	else if (key == "hostname")
+	{
+		ss >> server.hostname;
+	}
 }
 
 void ConfigParser::parseLocationConfig(std::stringstream &ss, std::string &key, RouteDetails &routeDetails)

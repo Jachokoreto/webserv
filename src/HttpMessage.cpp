@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 18:03:07 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/09 22:26:42 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 02:32:06 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void HttpMessage::parseHeaders(std::vector<std::string> split)
 	// from split separate body and header, seperator is """
 	std::vector<std::string>::iterator headerEndIterator = std::find(split.begin() + 1, split.end(), "");
 	// std::vector<std::string> header(split.begin() + 1, iterator);
-	for (std::vector<std::string>::iterator startIt = split.begin() + 1; startIt != headerEndIterator; startIt++)
+	for (std::vector<std::string>::iterator startIt = split.begin(); startIt != headerEndIterator; startIt++)
 	{
 		std::size_t delimPos = startIt->find(": ");
 		if (delimPos != std::string::npos && delimPos != 0)

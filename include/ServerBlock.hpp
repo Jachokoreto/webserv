@@ -11,40 +11,42 @@
 /* ************************************************************************** */
 
 #ifndef SERVER_BLOCK_HPP
-# define SERVER_BLOCK_HPP
+#define SERVER_BLOCK_HPP
 
-# include <iostream>
-# include <string>
-# include <sstream>
+#include <iostream>
+#include <string>
+#include <sstream>
 
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <netdb.h>	// struct addrinfo, gai_strerror
-# include <unistd.h> // execve, dup, dup2, pipe, fork
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>	// struct addrinfo, gai_strerror
+#include <unistd.h> // execve, dup, dup2, pipe, fork
 
-# include "Logger.hpp"
-# include "Router.hpp"
+#include "Logger.hpp"
+#include "Router.hpp"
 
-using std::string;
 using std::cout;
 using std::endl;
+using std::string;
 using std::vector;
 
-class ServerBlock {
+class ServerBlock
+{
 public:
-    int listen;
-    // string root;
-    // string index;
-    Router router;
+	int listen;
+	string hostname;
+	// string root;
+	// string index;
+	Router router;
 
-    ServerBlock();
-    ServerBlock(Router router);
+	ServerBlock();
+	ServerBlock(Router router);
 
-    void display() const;
-    int getPort() const;
-    string getServerName() const;
-
-    string handleRequest(string request);
+	void display() const;
+	int getPort() const;
+	string getServerName() const;
+	string getHostname() const;
+	string handleRequest(string request);
 };
 
 #endif /* ****************************************************** SERVER_BLOCK_HPP */
