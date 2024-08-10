@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:58:14 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 00:21:07 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 16:12:54 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,7 @@ void Router::routeRequest(const Request &request, Response &response)
 	if (routeDetail)
 	{
 		this->_logger.log("Handling route detail: " + routeDetail->route);
-		if (checkAllowedMethods(request.getMethod(), routeDetail->allowedMethods) == false)
+		if (routeDetail->redirection.empty() && checkAllowedMethods(request.getMethod(), routeDetail->allowedMethods) == false)
 		{
 			response.errorResponse(405, "Method not allowed");
 			return;

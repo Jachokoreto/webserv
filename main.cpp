@@ -2,6 +2,7 @@
 #include "ConfigParser.hpp"
 #include "AutoindexHandler.hpp"
 #include "CGIHandler.hpp"
+#include "RedirectionHandler.hpp"
 
 void testRouter(void)
 {
@@ -12,6 +13,7 @@ void testRouter(void)
 	requestHandlers.push_back(new CGIHandler());
 	requestHandlers.push_back(new AutoindexHandler());
 	requestHandlers.push_back(new StaticFileHandler());
+	requestHandlers.push_back(new RedirectionHandler());
 	router.assignHandlers(requestHandlers);
 
 	Request req("GET /jaclyn/./haha/popo/.. HTTP/1.1\r\nHOST: localhost:8080");
@@ -54,6 +56,7 @@ void testWebserver(std::string configFile)
 	requestHandlers.push_back(new CGIHandler());
 	requestHandlers.push_back(new AutoindexHandler());
 	requestHandlers.push_back(new StaticFileHandler());
+	requestHandlers.push_back(new RedirectionHandler());
 	std::vector<ServerBlock *> serverBlocks;
 
 	configParser.createServerBlocksFromConf("conf/" + configFile, requestHandlers, serverBlocks);

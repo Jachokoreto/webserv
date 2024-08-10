@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/14 16:12:06 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 00:38:08 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 14:49:22 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ Response::Response() : _logger(Logger("Response")), _ready(0)
 {
 	_statusCode = 200;
 	statusMap[200] = "OK";
+	statusMap[301] = "Moved Permanently";
 	statusMap[403] = "Forbidden";
 	statusMap[404] = "Not Found";
 	statusMap[405] = "Method not allowed";
