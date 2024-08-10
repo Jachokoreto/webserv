@@ -61,7 +61,7 @@ bool Connection::readData()
 	char buf[BUFFER_SIZE + 1]; // buffer for client data
 	memset(buf, 0, BUFFER_SIZE + 1);
 	ssize_t bytes_read = recv(fd, buf, BUFFER_SIZE, 0);
-	size_t needle;
+	// size_t needle;
 
 	if (bytes_read <= 0)
 	{
@@ -69,7 +69,7 @@ bool Connection::readData()
 		return false;
 	}
 
-	_buffer += std::string(buf);
+	_buffer += std::string(buf, bytes_read);
 
 	if (_request != NULL)
 	{
@@ -84,50 +84,56 @@ bool Connection::readData()
 	}
 	else
 	{
-		needle = _buffer.find("\r\n\r\n");
-		if (needle != std::string::npos)
+		if ((_buffer.find("\r\n\r\n") != std::string::npos))
 		{
-			try
-			{
-				std::cout << _buffer.substr(0, needle + 4) << std::endl;
-				_request = new Request(_buffer.substr(0, needle + 4));
-				_response = new Response();
-
-				if ((_request->getHeader("Host") != _serverBlock->getHostname()) && (_request->getHeader("Host") != "localhost"))
-				{
-					_response->errorResponse(404, "Hostname not recognized");
-					return true;
-				}
-				int res = _request->checkIfHandleWithoutBody();
-				if (res == 1)
-				{
-					this->_logger.info("handle without body");
-					_serverBlock->router.routeRequest(*_request, *_response);
-				}
-				else if (res == -1)
-				{
-					_response->errorResponse(404, "Invalid body");
-				}
-				else if (res == 0)
-				{
-					_buffer = _buffer.substr(needle + 4);
-					if (_request->processBody(_buffer))
-					{
-						this->_logger.info("handle with body");
-						_serverBlock->router.routeRequest(*_request, *_response);
-					}
-				}
-			}
-			catch (const std::exception &e)
-			{
-				_logger.error(std::string(e.what()));
-				_buffer.clear();
-				return false;
-			}
-			_buffer.clear();
+			size_t headerEnd = _buffer.find("\r\n\r\n") + 4;
+			_request = new Request(_buffer.substr(0, headerEnd));
+			_response = new Response();
+			_buffer.erase(0, headerEnd);
 		}
-	}
+		// needle = _buffer.find("\r\n\r\n");
+		// if (needle != std::string::npos)
+		// {
+		// 	try
+		// 	{
+		// 		std::cout << _buffer.substr(0, needle + 4) << std::endl;
+		// 		_request = new Request(_buffer.substr(0, needle + 4));
+		// 		_response = new Response();
 
+		// 		if ((_request->getHeader("Host") != _serverBlock->getHostname()) && (_request->getHeader("Host") != "localhost"))
+		// 		{
+		// 			_response->errorResponse(404, "Hostname not recognized");
+		// 			return true;
+		// 		}
+		// 		int res = _request->checkIfHandleWithoutBody();
+		// 		if (res == 1)
+		// 		{
+		// 			this->_logger.info("handle without body");
+		// 			_serverBlock->router.routeRequest(*_request, *_response);
+		// 		}
+		// 		else if (res == -1)
+		// 		{
+		// 			_response->errorResponse(404, "Invalid body");
+		// 		}
+		// 		else if (res == 0)
+		// 		{
+		// 			_buffer = _buffer.substr(needle + 4);
+		// 			if (_request->processBody(_buffer))
+		// 			{
+		// 				this->_logger.info("handle with body");
+		// 				_serverBlock->router.routeRequest(*_request, *_response);
+		// 			}
+		// 		}
+		// 	}
+		// 	catch (const std::exception &e)
+		// 	{
+		// 		_logger.error(std::string(e.what()));
+		// 		_buffer.clear();
+		// 		return false;
+		// 	}
+		// 	_buffer.clear();
+		// }
+	}
 	return true;
 }
 
