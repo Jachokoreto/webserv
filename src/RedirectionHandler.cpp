@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/10 15:41:04 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 16:21:57 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 16:49:11 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ bool RedirectionHandler::handleRequest(const Request &request, Response &respons
 {
 	(void)fullPath;
 	(void)request;
-	response.setStatusCode(301);
+	response.setStatusCode(307);
 	response.addHeader("Location", routeDetail.redirection);
 	response.setBody("");
 	return true;

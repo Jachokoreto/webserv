@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 18:03:07 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 02:32:06 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 18:01:13 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,9 @@ const std::string HttpMessage::getBody() const
 	return this->_body;
 }
 
-const std::string HttpMessage::getHeader(const std::string &field)
+const std::string HttpMessage::getHeader(const std::string &field) const
 {
-	std::map<std::string, std::string>::iterator it = this->_headers.find(field);
+	std::map<std::string, std::string>::const_iterator it = this->_headers.find(field);
 	if (it != this->_headers.end())
 		return it->second;
 	else

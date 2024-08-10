@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 23:19:09 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/09 23:02:19 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 18:12:10 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ Request::Request(const std::string &requestString) : _logger(Logger("Request")),
 {
 	if (requestString.empty())
 		return;
-	// this->_logger.info("\n" + requestString);
+	this->_logger.info("\n" + requestString);
 	std::vector<std::string> split = utl::splitStringByDelim(requestString, '\n');
 	std::vector<std::string> requestLine = utl::splitStringByDelim(split[0], ' ');
 	const std::string &method = requestLine[0];

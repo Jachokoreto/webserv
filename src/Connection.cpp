@@ -93,11 +93,22 @@ bool Connection::readData()
 				_request = new Request(_buffer.substr(0, needle + 4));
 				_response = new Response();
 
-				if ((_request->getHeader("Host") != _serverBlock->getHostname()) && (_request->getHeader("Host").find("localhost") == std::string::npos))
+				// if ((_request->getHeader("Host") != _serverBlock->getHostname()))
+				// {
+				// 	std::cout << _request->getHeader("Host") << " " << _serverBlock->getHostname() << std::endl;
+				// 	std::cout << _serverBlock->listen << std::endl;
+				// 	_response->errorResponse(404, "Hostname not recognized");
+				// 	return true;
+				// }
+				std::string requestHost = _request->getHeader("Host");
+				std::string serverHostName = _serverBlock->getHostname();
+				if (!serverHostName.empty() && requestHost != serverHostName && requestHost.find("localhost") == std::string::npos)
 				{
+					_logger.log("Hostname not recognized: " + requestHost);
 					_response->errorResponse(404, "Hostname not recognized");
 					return true;
 				}
+
 				int res = _request->checkIfHandleWithoutBody();
 				if (res == 1)
 				{
