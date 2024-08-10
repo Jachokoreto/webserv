@@ -31,9 +31,16 @@ using std::string;
 using std::vector;
 
 class Router;
-
-class ServerBlock {
+class ServerBlock
+{
 public:
+	int listen;
+	string hostname;
+	Router router;
+    int bodyLimit;
+    IntStringMap _errorPages;
+    string _root;
+    std::string _projectDir;
 
 	ServerBlock();
 	ServerBlock(Router router);
@@ -52,16 +59,10 @@ public:
     void setBodyLimit(int bodyLimit);
     void addErrorPage(int code, string path);
     void setRoot(string root);
+	string getHostname() const;
+
 
     string handleRequest(string request);
-private:
-    int listen;
-    int bodyLimit;
-    IntStringMap _errorPages;
-    string _root;
-    // string index;
-    Router router;
-    std::string _projectDir;
 
 };
 
