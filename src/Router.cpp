@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:58:14 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 18:14:28 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 19:24:08 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ void Router::routeRequest(const Request &request, Response &response)
 	if (routeDetail)
 	{
 		this->_logger.log("Handling route detail: " + routeDetail->route);
-		if (checkAllowedMethods(request.getMethod(), routeDetail->allowedMethods) == false)
+		if (routeDetail->redirection.empty() && checkAllowedMethods(request.getMethod(), routeDetail->allowedMethods) == false)
 		{
 			response.errorResponse(405, "Method not allowed");
 			return;

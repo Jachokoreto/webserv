@@ -163,6 +163,10 @@ void ConfigParser::parseLocationConfig(std::stringstream &ss, std::string &key, 
 	{
 		ss >> routeDetails.cgiPass;
 	}
+	else if (key == "redirect")
+	{
+		ss >> routeDetails.redirection;
+	}
 }
 
 void ConfigParser::displayConfig(ServerBlock &server) const

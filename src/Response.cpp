@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/14 16:12:06 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 15:21:24 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 19:23:59 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@ Response::Response() : _logger(Logger("Response")), _ready(0)
 {
 	_statusCode = 200;
 	statusMap[200] = "OK";
+	statusMap[202] = "Accepted";
+	statusMap[307] = "Temporary Redirect";
 	statusMap[403] = "Forbidden";
 	statusMap[404] = "Not Found";
 	statusMap[405] = "Method Not Allowed";
