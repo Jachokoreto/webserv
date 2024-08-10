@@ -142,6 +142,7 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		// else
 		// {
 		arg.push_back("/usr/bin/python3");
+		std::cout << "fullPath: " << fullPath << std::endl;
 		arg.push_back(strdup(fullPath.c_str()));
 		// }
 		arg.push_back(NULL);
@@ -175,65 +176,9 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		}
 		waitpid(pid, NULL, 0);
 		close(p[0]);
-
-		// std::string responseBody;
-		// std::ifstream inFile("temp-output-file.txt");
-		// if (!inFile.is_open())
-		// {
-		// 	std::cerr << "Failed to read output file." << std::endl;
-		// 	return false;
-		// }
-
-		// std::ofstream outFile;
-
-		// // Open the file
-		// outFile.open("example");
-
-		// // Check if the file is open
-		// if (!outFile.is_open())
-		// {
-		// 	std::cerr << "Failed to open the file." << std::endl;
-		// 	return 1;
-		// }
-
-		// // Write the string to the file
-		// outFile << responseBody;
-
-		// // Close the file stream
-		// outFile.close();
-
-		// std::string line;
-		// while (getline(inFile, line))
-		// {
-		// 	responseBody += line;
-		// }
-		// inFile.close();
-
-		// close(p[0]); // Close read end
-		// close(initialFd);
-		// close(outputFd);
-		// remove("temp-initial-file.txt");
-		// remove("temp-output-file.txt");
-
 		response.setStatusCode(200);
 		response.addHeader("Content-Type", "*/*");
-		// std::cout << "responseBody: " << responseBody.substr(0, 10) << std::endl;
-		// if (!responseBody.empty())
-		// {
-		// 	size_t pos = responseBody.find("\n\n");
-		// 	if (pos != std::string::npos)
-		// 	{
-		// 		std::vector<std::string> headers = utl::splitStringByDelim(responseBody.substr(0, pos), '\n');
-		// 		response.parseHeaders(headers);
-		// 		std::cout << "header:" << response.getHeader("Content-Type") << "???" << std::endl;
-		// 		responseBody = responseBody.substr(pos + 4);
-		// 	}
-		// 	else
-		// 	{
-		// 		std::cout << " no find "<< std::endl;
-		// 	}
-		// }
-		// response.setBody(responseBody);
+
 
 		size_t pos = responseBody.find("\r\n\r\n");
 		std::string headers;
@@ -255,10 +200,6 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 			}
 		}
 
-		std::cout << "Headers:\n"
-				  << headers << "\n\n";
-		std::cout << "Body:\n"
-				  << responseBody.substr(0, 10) << "\n";
 		response.setBody(responseBody);
 		return true;
 	}
