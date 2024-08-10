@@ -44,7 +44,7 @@ void testCGI(void)
 	cgiHandler.handleRequest(req, res, routeDetails, "/Users/user/sidess/webserv/YoupiBanane/youpi.bla");
 }
 
-void testWebserver(void)
+void testWebserver(std::string configFile)
 {
 	// WebServer webserver(PORT, "localhost", "Webserver");
 
@@ -56,7 +56,7 @@ void testWebserver(void)
 	requestHandlers.push_back(new StaticFileHandler());
 	std::vector<ServerBlock *> serverBlocks;
 
-	configParser.createServerBlocksFromConf("conf/tester.conf", requestHandlers, serverBlocks);
+	configParser.createServerBlocksFromConf("conf/" + configFile, requestHandlers, serverBlocks);
 	for (std::vector<ServerBlock *>::iterator it = serverBlocks.begin(); it != serverBlocks.end(); it++)
 	{
 		configParser.displayConfig(**it);
@@ -66,10 +66,16 @@ void testWebserver(void)
 	webserver.start();
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
+	if (argc != 2)
+	{
+		std::cerr << "Usage: ./webserv <file.conf>" << std::endl;
+		exit(1);
+	}
+
 	// testRouter();
 	// testAutoindex();
 	// testCGI();
-	testWebserver();
+	testWebserver(std::string(argv[1]));
 }

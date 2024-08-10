@@ -52,6 +52,11 @@ void ServerBlock::display() const
 	router.display();
 }
 
+string ServerBlock::getHostname() const
+{
+	return this->hostname;
+}
+
 string ServerBlock::handleRequest(string request)
 {
 	std::cout << "Handling request on port " << listen << std::endl;

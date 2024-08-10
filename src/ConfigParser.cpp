@@ -12,7 +12,7 @@ void ConfigParser::createServerBlocksFromConf(const std::string &filename, std::
 	if (!configFile.is_open())
 	{
 		std::cerr << "Failed to open config file." << std::endl;
-		return;
+		exit(1);
 	}
 
 	while (getline(configFile, line))
@@ -50,12 +50,12 @@ void ConfigParser::createServerBlocksFromConf(const std::string &filename, std::
 			if (value.empty() || end != "{")
 			{
 				std::cerr << "Invalid route block\nie: route /pathname {...}" << std::endl;
-				return;
+				exit(1);
 			}
 			else if (inServerBlock == false)
 			{
 				std::cerr << "route should be inside a server {}" << std::endl;
-				return;
+				exit(1);
 			}
 			currentRoute = value;
 			routeDetails = new RouteDetails(value);
@@ -118,6 +118,10 @@ void ConfigParser::parseServerConfig(std::stringstream &ss, std::string &key, Se
 		server.setRoot(root);
 	}
 
+	else if (key == "hostname")
+	{
+		ss >> server.hostname;
+	}
 }
 
 void ConfigParser::parseLocationConfig(std::stringstream &ss, std::string &key, RouteDetails &routeDetails)
