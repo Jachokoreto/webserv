@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpMessage.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 18:03:07 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 19:23:32 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 21:10:44 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ void HttpMessage::parseHeaders(std::vector<std::string> split)
 
 	// from split separate body and header, seperator is """
 	std::vector<std::string>::iterator headerEndIterator = std::find(split.begin() + 1, split.end(), "");
-	// std::vector<std::string> header(split.begin() + 1, iterator);
 	for (std::vector<std::string>::iterator startIt = split.begin(); startIt != headerEndIterator; startIt++)
 	{
 		std::size_t delimPos = startIt->find(": ");
@@ -63,7 +62,7 @@ void HttpMessage::parseHeaders(std::vector<std::string> split)
 			this->addHeader(key, value);
 		}
 	}
-};
+}
 
 HttpMessage::HttpMessage() {}
 

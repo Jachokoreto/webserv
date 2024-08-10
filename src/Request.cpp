@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 23:19:09 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 19:23:45 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 21:11:21 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,39 +117,13 @@ Request::Request(const std::string &requestString) : _logger(Logger("Request")),
 	std::vector<std::string> split = utl::splitStringByDelim(requestString, '\n');
 	std::vector<std::string> requestLine = utl::splitStringByDelim(split[0], ' ');
 	const std::string &method = requestLine[0];
-	// if (std::find(Request::methodVector.begin(), Request::methodVector.end(), method) == Request::methodVector.end())
-	// 	throw Request::NotAllowedException("Invalid method");
 	this->setMethod(method);
 	this->setUri(sanitizeUri(requestLine[1]));
 	this->_version = "HTTP/1.1";
 
 	split.erase(split.begin());
 	this->parseHeaders(split);
-	// // from split separate body and header, seperator is """
-	// std::vector<std::string>::iterator headerEndIterator = std::find(split.begin() + 1, split.end(), "");
-	// // std::vector<std::string> header(split.begin() + 1, iterator);
-	// for (std::vector<std::string>::iterator startIt = split.begin() + 1; startIt != headerEndIterator; startIt++)
-	// {
-	//     std::size_t delimPos = startIt->find(": ");
-	//     if (delimPos != std::string::npos && delimPos != 0)
-	//     {
-	//         std::string key = startIt->substr(0, delimPos);
-	//         std::string value = startIt->substr(delimPos + 2);
-	//         std::string::size_type pos;
-
-	//         if ((pos = value.find("\r")) != std::string::npos) {
-	//             value.erase(pos, 2);
-	//         }
-	//         this->addHeader(key, value);
-	//     }
-	// }
-
-	// if (headerEndIterator != split.end())
-	//     while (++headerEndIterator != split.end())
-	//         this->_body = this->_body + *headerEndIterator + '\n';
 }
-
-// Request::Request() {}
 
 Request::Request(Request const &src) : _logger(Logger("Request"))
 {
@@ -226,7 +200,6 @@ int Request::processBody(const std::string &buffer)
 				else
 				{
 					this->_logger.error("Invalid Chunked (Missing CRLF after chunk data)");
-					// std::cout << "buffer: " << buffer << std::endl;
 					return -1;
 				}
 			}
@@ -240,7 +213,6 @@ int Request::processBody(const std::string &buffer)
 		if (this->_body.length() == (size_t)len)
 			return 1;
 	}
-	// usleep(5000);
 	return 0;
 }
 

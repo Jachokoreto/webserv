@@ -134,8 +134,6 @@ void ConfigParser::parseLocationConfig(std::stringstream &ss, std::string &key, 
 	else if (key == "index")
 	{
 		ss >> routeDetails.index;
-		// } else if (key == "cgi_pass") {
-		//     ss >> routeDetails.cgi_pass;
 	}
 	else if (key == "autoindex")
 	{

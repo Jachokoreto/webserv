@@ -41,11 +41,6 @@ ssize_t writeAllBytes(int fd, char *data, size_t bytes)
 
 	ssize_t totalWritten = -1;
 
-	// fd_set fds;
-	// FD_ZERO(&fds);
-	// FD_SET(fd, &fds);
-	// struct timeval tv = {1, 0}; // 3 secs, 0 usecs
-
 	while (bytes > 0)
 	{
 		size_t bytesToWrite = bytes;
@@ -53,7 +48,6 @@ ssize_t writeAllBytes(int fd, char *data, size_t bytes)
 		{
 			bytesToWrite = CHUNK_SIZE;
 		}
-		// ssize_t bytesWritten = 0;
 
 		ssize_t bytesWritten = write(fd, buf, bytesToWrite);
 		if (bytesWritten <= 0)
@@ -89,9 +83,6 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 	(void)routeDetails;
 	(void)fullPath;
 
-	// int initialFd = open("temp-initial-file.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
-	// int outputFd = open("temp-output-file.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
-
 	int c[2];
 	int p[2];
 
@@ -101,17 +92,10 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		return true;
 	}
 
-	// Set pipes to non-blocking to handle large data volumes better
-	// fcntl(c[1], F_SETFL, O_NONBLOCK);
-	// fcntl(p[0], F_SETFL, O_NONBLOCK);
-
-	// std::string requestBody = request.getBody();
-	// writeAllBytes(initialFd, const_cast<char *>(requestBody.c_str()), requestBody.size());
-	// lseek(initialFd, 0, SEEK_SET);
-
 	pid_t pid = fork();
 	if (pid == -1)
 	{
+		response.errorResponse(500, "Fork failed");
 		perror("fork failed");
 		return true;
 	}
@@ -133,16 +117,8 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		env.push_back(strdup("SERVER_PROTOCOL=HTTP/1.1"));
 		env.push_back(NULL);
 
-		// if (request.getHeader("X-Secret-Header-For-Test") != "")
-		// {
-		// 	std::cout << "Runinn CGI Tester" << std::endl;
-		// 	arg.push_back(strdup(routeDetails.cgiPass.c_str()));
-		// 	arg.push_back(strdup(request.getUri().c_str()));
-		// }
-		// else
-		// {
 		arg.push_back(strdup("/usr/bin/python3"));
-		arg.push_back(strdup(fullPath.c_str()));
+		arg.push_back(strdup((fullPath + request.getUri()).c_str()));
 		// }
 		arg.push_back(NULL);
 
@@ -153,8 +129,6 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 	}
 	else
 	{ // Parent process
-		// close(initialFd);
-		// close(outputFd);
 		if (!request.getBody().empty())
 		{
 			std::string tmp = request.getBody();
@@ -181,7 +155,6 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 
 		size_t pos = responseBody.find("\r\n\r\n");
 		std::string headers;
-		// std::string body;
 
 		if (pos != std::string::npos)
 		{

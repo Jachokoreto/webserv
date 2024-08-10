@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:58:26 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 19:18:49 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 21:12:40 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,7 @@ bool serveFile(const std::string &filePath, Response &response)
 
 	response.setStatusCode(200);
 	response.setBody(content);
-	// response.addHeader("Content-Length", utl::toString(content.length() + 1));
 	response.addHeader("Content-Type", getMimeType(filePath));
-	// file.close();
 	return true;
 }
 

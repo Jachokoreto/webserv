@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/14 16:12:06 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 19:23:59 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 21:11:44 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ Response::Response() : _logger(Logger("Response")), _ready(0)
 	statusMap[500] = "Internal Server Error";
 	_body = "";
 	_isDone = false;
-	// std::cout << "Response constructor" << std::endl;
 }
 
 Response::Response(ServerBlock &serverBlock) : _logger(Logger("Response")), _ready(0), _serverBlock(&serverBlock)
@@ -41,12 +40,10 @@ Response::Response(ServerBlock &serverBlock) : _logger(Logger("Response")), _rea
 	statusMap[500] = "Internal Server Error";
 	_body = "";
 	_isDone = false;
-	// std::cout << "Response constructor" << std::endl;
 }
 
 Response::~Response()
 {
-	// std::cout << "Response destructor" << std::endl;
 }
 
 std::string Response::toString()
@@ -67,8 +64,6 @@ std::string Response::toString()
 
 		if (bodyLen > 0)
 		{
-			// this->addHeader("Content-Length", utl::toString(bodyLen));
-
 			if (bodyLen <= BODY_SIZE)
 			{
 				this->addHeader("Content-Length", utl::toString(this->getBody().length()));
@@ -91,21 +86,6 @@ std::string Response::toString()
 	// optional body
 	if (bodyLen > 0)
 	{
-		// if (isChunked)
-		// {
-		// 	int chunk_size = bodyLen <= BODY_SIZE ? bodyLen : BODY_SIZE;
-		// 	std::ostringstream ss;
-		// 	ss << std::hex << chunk_size;
-		// 	responseStream << ss.str() << "\r\n"
-		// 				   << this->_body.substr(0, chunk_size) << "\r\n";
-		// 	this->_body = this->_body.substr(chunk_size);
-		// 	std::cout << responseStream.str() << std::endl;
-		// }
-		// else
-		// {
-		// 	responseStream << this->_body;
-		// 	this->_isDone = true;
-		// }
 		if (isChunked)
 		{
 			size_t pos = 0; // Position in the body

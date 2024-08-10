@@ -47,8 +47,6 @@ Connection &Connection::operator=(const Connection &rhs)
 std::ostream &operator<<(std::ostream &o, Connection const &i)
 {
 	(void)i;
-	// o << "i am still here?";
-
 	return o;
 }
 
@@ -100,7 +98,7 @@ bool Connection::readData()
 					// check if hostname is recognized
 					std::string requestHost = _request->getHeader("Host");
 					std::string serverHostName = _serverBlock->getHostname();
-					if (!serverHostName.empty() && requestHost != serverHostName && requestHost.find("localhost") == std::string::npos)
+					if (!serverHostName.empty() && requestHost.find(serverHostName) == std::string::npos && requestHost.find("localhost") == std::string::npos)
 					{
 						_logger.log("Hostname not recognized: " + requestHost);
 						_response->errorResponse(404, "Hostname not recognized");
@@ -156,11 +154,8 @@ bool Connection::sendData(void)
 		const std::string resString = _response->toString();
 		if (resString.empty())
 		{
-			// _logger.log("Response not ready yet");
 			return false;
 		}
-		// char * cstr = (char *)resString.c_str();
-		// cstr[resString.length()] = '\0';
 		ssize_t bytes_sent = send(fd, resString.c_str(), resString.length(), 0);
 		if (bytes_sent == -1)
 		{

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserver.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/23 16:06:07 by jatan             #+#    #+#             */
-/*   Updated: 2024/08/10 12:26:37 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 21:12:52 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,9 +176,6 @@ void Webserver::handleConnections()
 
 		if (FD_ISSET(fd, &_writeFds))
 		{
-			// this->_logger.log("Something from write fds...");
-
-			// handle write
 			if ((*it)->sendData())
 			{
 				// !BUG tester failed when ran the second time

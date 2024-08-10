@@ -37,7 +37,6 @@ ServerBlock::ServerBlock()
 			_projectDir += "/";
 #endif
 	}
-	// std::cout << "ServerBlock created" << std::endl;
 }
 
 
@@ -47,7 +46,6 @@ ServerBlock::ServerBlock()
 
 void ServerBlock::display() const
 {
-	// std::cout << "Server Listen on: " << listen << std::endl;
 	router.display();
 }
 
@@ -64,12 +62,6 @@ string ServerBlock::handleRequest(string request)
 	{
 		std::cout << "Request complete" << std::endl;
 		std::cout << GREEN << request << RESET << std::endl;
-		// if (FD_ISSET(_fd, _master)) {
-		// std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
-		// std::cout << _fd << _index << std::endl;
-		// send(_fd, response.c_str(), response.length(), 0);
-		// this->_logger.log("Response sent");
-		// }
 		return "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 	}
 	return "";

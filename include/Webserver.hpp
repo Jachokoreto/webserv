@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserver.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 19:46:03 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/17 13:16:37 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 21:08:33 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "StaticFileHandler.hpp"
-#include "APIHandler.hpp"
 #include "Router.hpp"
 
 #include <iostream>
