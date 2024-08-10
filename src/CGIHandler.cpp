@@ -124,13 +124,13 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		dup2(p[1], STDOUT_FILENO); // Redirect stdout to pipe write end
 		close(p[0]);
 
-		std::vector<const char *const> env;
-		std::vector<const char *const> arg;
+		std::vector<char *> env;
+		std::vector<char *> arg;
 
 		env.push_back(strdup(utl::toString("CONTENT_LENGTH=" + utl::toString(request.getBody().length())).c_str()));
 		env.push_back(strdup(utl::toString("PATH_INFO=" + request.getUri()).c_str())); // the
 		env.push_back(strdup(utl::toString("REQUEST_METHOD=" + request.getMethod()).c_str()));
-		env.push_back("SERVER_PROTOCOL=HTTP/1.1");
+		env.push_back(strdup("SERVER_PROTOCOL=HTTP/1.1"));
 		env.push_back(NULL);
 
 		// if (request.getHeader("X-Secret-Header-For-Test") != "")
@@ -141,8 +141,7 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		// }
 		// else
 		// {
-		arg.push_back("/usr/bin/python3");
-		std::cout << "fullPath: " << fullPath << std::endl;
+		arg.push_back(strdup("/usr/bin/python3"));
 		arg.push_back(strdup(fullPath.c_str()));
 		// }
 		arg.push_back(NULL);
