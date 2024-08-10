@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 16:42:28 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/09 00:35:43 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 14:39:51 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,11 @@
 #include "HttpMessage.hpp"
 #include "Logger.hpp"
 #include "Utility.hpp"
+// #include "ServerBlock.hpp"
 
 #define BODY_SIZE 32768
+
+class ServerBlock;
 
 class Response : public HttpMessage
 {
@@ -32,12 +35,15 @@ private:
 	int _ready;
 	bool _isHeaderSent;
 	bool _isDone;
+	ServerBlock* _serverBlock;
+	std::string _projectDir;
 
 public:
 	Response();
+	Response(ServerBlock &serverBlock);
 	~Response();
 
-	static std::map<int, std::string> statusMap;
+	static IntStringMap statusMap;
 	void setStatusCode(int status);
 	int getStatusCode() const;
 	bool getIsDone() const;

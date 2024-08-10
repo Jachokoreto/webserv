@@ -34,7 +34,7 @@ void ConfigParser::createServerBlocksFromConf(const std::string &filename, std::
 				// create new server block
 				serverBlocks.push_back(new ServerBlock());
 				server = serverBlocks.back();
-				server->router.assignHandlers(requestHandlers);
+				server->getRouter().assignHandlers(requestHandlers);
 				continue;
 			}
 			else
@@ -66,7 +66,7 @@ void ConfigParser::createServerBlocksFromConf(const std::string &filename, std::
 		{
 			if (inLocationBlock)
 			{
-				server->router.addRoute(currentRoute, routeDetails);
+				server->getRouter().addRoute(currentRoute, routeDetails);
 				currentRoute = "";
 				routeDetails = NULL;
 				inLocationBlock = false;
@@ -94,8 +94,30 @@ void ConfigParser::parseServerConfig(std::stringstream &ss, std::string &key, Se
 	std::string value;
 	if (key == "listen")
 	{
-		ss >> server.listen;
+		int port;
+		ss >> port;
+		server.setListen(port);
 	}
+	else if (key == "body_limit")
+	{
+		int bodyLimit;
+		ss >> bodyLimit;
+		server.setBodyLimit(bodyLimit);
+	}
+	else if (key == "error_page")
+	{
+		int statusCode;
+		std::string path;
+		ss >> statusCode >> path;
+		server.addErrorPage(statusCode, path);
+	}
+	else if (key == "root")
+	{
+		std::string root;
+		ss >> root;
+		server.setRoot(root);
+	}
+
 }
 
 void ConfigParser::parseLocationConfig(std::stringstream &ss, std::string &key, RouteDetails &routeDetails)

@@ -30,12 +30,10 @@ using std::cout;
 using std::endl;
 using std::vector;
 
+class Router;
+
 class ServerBlock {
 public:
-    int listen;
-    // string root;
-    // string index;
-    Router router;
 
     ServerBlock();
     ServerBlock(Router router);
@@ -43,8 +41,28 @@ public:
     void display() const;
     int getPort() const;
     string getServerName() const;
+    int getBodyLimit() const;
+    std::map<int, std::string> getErrorPages() const;
+    Router& getRouter();
+    std::string getRoot() const;
+    int getListen() const;
+    std::string getProjectDir() const;
+
+    void setListen(int listen);
+    void setBodyLimit(int bodyLimit);
+    void addErrorPage(int code, string path);
+    void setRoot(string root);
 
     string handleRequest(string request);
+private:
+    int listen;
+    int bodyLimit;
+    IntStringMap _errorPages;
+    string _root;
+    // string index;
+    Router router;
+    std::string _projectDir;
+
 };
 
 #endif /* ****************************************************** SERVER_BLOCK_HPP */

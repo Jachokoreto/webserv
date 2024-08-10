@@ -60,6 +60,7 @@ std::ostream &operator<<(std::ostream &o, Connection const &i)
 
 bool Connection::readData()
 {
+	Router *router = &_serverBlock->getRouter();
 	char buf[BUFFER_SIZE + 1]; // buffer for client data
 	memset(buf, 0, BUFFER_SIZE + 1);
 	try
@@ -86,7 +87,7 @@ bool Connection::readData()
 			if (res == 1)
 			{
 				this->_logger.info("handle with body");
-				_serverBlock->router.routeRequest(*_request, *_response);
+				router->routeRequest(*_request, *_response);
 			}
 			if (res != -1)
 				_buffer.clear();
@@ -99,13 +100,13 @@ bool Connection::readData()
 				try
 				{
 					_request = new Request(_buffer.substr(0, needle + 4));
-					_response = new Response();
+					_response = new Response(*this->_serverBlock);
 
 					int res = _request->checkIfHandleWithoutBody();
 					if (res == 1)
 					{
 						this->_logger.log("handle without body");
-						_serverBlock->router.routeRequest(*_request, *_response);
+						router->routeRequest(*_request, *_response);
 					}
 					else if (res == -1)
 					{
@@ -117,7 +118,7 @@ bool Connection::readData()
 						if (_request->processBody(_buffer))
 						{
 							this->_logger.log("handle with body");
-							_serverBlock->router.routeRequest(*_request, *_response);
+							router->routeRequest(*_request, *_response);
 						}
 					}
 				}
@@ -144,28 +145,37 @@ bool Connection::readData()
 
 bool Connection::sendData(void)
 {
-	const std::string resString = _response->toString();
-	if (resString.empty())
+	try
 	{
-		// _logger.log("Response not ready yet");
+
+		const std::string resString = _response->toString();
+		if (resString.empty())
+		{
+			// _logger.log("Response not ready yet");
+			return false;
+		}
+		// char * cstr = (char *)resString.c_str();
+		// cstr[resString.length()] = '\0';
+		ssize_t bytes_sent = send(fd, resString.c_str(), resString.length(), 0);
+		if (bytes_sent == -1)
+		{
+			perror("send");
+			return false;
+		}
+		if ((unsigned long)bytes_sent < resString.length())
+		{
+			this->_logger.log("didnt send finish");
+			_response->truncateResponse(bytes_sent);
+			return false;
+		}
+		_logger.log("sent data");
+		return true;
+	}
+	catch (const std::exception &e)
+	{
+		_logger.error(std::string(e.what()));
 		return false;
 	}
-	// char * cstr = (char *)resString.c_str();
-	// cstr[resString.length()] = '\0';
-	ssize_t bytes_sent = send(fd, resString.c_str(), resString.length(), 0);
-	if (bytes_sent == -1)
-	{
-		perror("send");
-		return false;
-	}
-	if ((unsigned long)bytes_sent < resString.length())
-	{
-		this->_logger.log("didnt send finish");
-		_response->truncateResponse(bytes_sent);
-		return false;
-	}
-	_logger.log("sent data");
-	return true;
 }
 
 bool Connection::hasResponse()

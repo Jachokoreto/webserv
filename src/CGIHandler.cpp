@@ -142,13 +142,14 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		// else
 		// {
 		arg.push_back("/usr/bin/python3");
-		arg.push_back(strdup((fullPath + request.getResource()).c_str()));
+		arg.push_back(strdup(fullPath.c_str()));
 		// }
 		arg.push_back(NULL);
 
 		execve(arg[0], const_cast<char *const *>(arg.data()), const_cast<char *const *>(env.data()));
 		perror("execve failed");
-		exit(EXIT_FAILURE);
+		// exit(EXIT_FAILURE);
+		return false;
 	}
 	else
 	{ // Parent process

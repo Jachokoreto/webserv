@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserver.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/23 16:06:07 by jatan             #+#    #+#             */
-/*   Updated: 2024/08/09 22:38:52 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 12:26:37 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ void Webserver::setupServerSocket(ServerBlock &serverBlock)
 
 	struct sockaddr_in address;
 	address.sin_family = AF_INET;
-	address.sin_port = htons(serverBlock.listen);
+	address.sin_port = htons(serverBlock.getListen());
 	address.sin_addr.s_addr = INADDR_ANY;
 
 	int opt = 1;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utility.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 22:42:52 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/17 14:49:58 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 12:25:43 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,9 @@
 #include <vector>
 #include <sstream>
 #include <sys/stat.h>
+#include <map>
+
+typedef std::map<int, std::string> IntStringMap;
 
 namespace utl
 {

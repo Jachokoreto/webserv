@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Router.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
+/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:58:14 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 00:21:07 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 14:21:53 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Router.hpp"
+#include "ServerBlock.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -59,6 +60,7 @@ Router::Router() : _logger(Logger("Router"))
 }
 
 Router::Router(std::string projectDir) : _projectDir(projectDir), _logger(Logger("Router")) {}
+Router::Router(ServerBlock *serverBlock) : _logger(Logger("Router")), _serverBlock(serverBlock) {}
 
 Router::~Router()
 {
@@ -110,43 +112,17 @@ RouteDetails *Router::getRouteDetails(const std::string &path, const routeTableM
 		}
 	}
 	return ret;
-	// routeTableMap::const_iterator routeIt;
-	// try
-	// {
-	// size_t toFind = 1;
-	// while (toFind != std::string::npos)
-	// {
-	// 	toFind = path.find('/', toFind);
-	// 	std::string route;
-	// 	if (toFind != std::string::npos)
-	// 	{
-	// 		route = path.substr(0, toFind);
-	// 	}
-	// 	else
-	// 	{
-	// 		route = "/";
-	// 	}
-	// 	this->_logger.warning("toFind: " + route);
-	// 	routeIt = routeTable.find(route);
-	// 	if (routeIt != routeTable.end())
-	// 	{
-	// 		return routeIt->second;
-	// 	} else if (route == "/") {
-	// 		break;
-	// 	}
-	// }
-
-	// }
-	// catch (std::exception &e)
-	// {
-	// 	this->_logger.log("Error: " + std::string(e.what()));
-	// }
-	// return NULL;
 }
 
 void Router::routeRequest(const Request &request, Response &response)
 {
 	// response.addHeader("Connection", "closed");
+
+	if (request.getBody().length() > static_cast<std::string::size_type>(this->_serverBlock->getBodyLimit()))
+	{
+		response.errorResponse(413, "Request Entity Too Large");
+		return;
+	}
 
 	RouteDetails *routeDetail = getRouteDetails(request.getUri(), this->_routeTable);
 	if (routeDetail)
@@ -179,7 +155,9 @@ void Router::routeRequest(const Request &request, Response &response)
 		response.errorResponse(404, "no handler found");
 	}
 	else
+	{
 		response.errorResponse(404, "route not found in route table");
+	}
 }
 
 void Router::display(void) const

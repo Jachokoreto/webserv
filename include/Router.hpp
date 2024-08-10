@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:50:55 by chenlee           #+#    #+#             */
-/*   Updated: 2024/06/21 00:31:17 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 03:28:54 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,10 @@
 #include "HttpMethods.h"
 #include "StaticFileHandler.hpp"
 #include "RouteDetails.hpp"
+// #include "ServerBlock.hpp"
 // #include "CGIHandler.hpp"
+
+class ServerBlock;
 
 class Router
 {
@@ -31,6 +34,7 @@ public:
 
 	Router();
 	Router(std::string projectDir);
+	Router(ServerBlock *serverBlock);
 	~Router();
 	void addRoute(const std::string &path, RouteDetails *routeDetail);
 	void routeRequest(const Request &request, Response &response);
@@ -43,6 +47,7 @@ private:
 	requestHandlerVec *_requestHandlers;
 	std::string _projectDir;
 	Logger _logger;
+	ServerBlock* _serverBlock;
 };
 
 #endif

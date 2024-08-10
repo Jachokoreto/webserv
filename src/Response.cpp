@@ -6,15 +6,30 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/14 16:12:06 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 02:10:05 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 15:21:24 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include "ServerBlock.hpp"
 
 std::map<int, std::string> Response::statusMap;
 
 Response::Response() : _logger(Logger("Response")), _ready(0)
+{
+	_statusCode = 200;
+	statusMap[200] = "OK";
+	statusMap[403] = "Forbidden";
+	statusMap[404] = "Not Found";
+	statusMap[405] = "Method Not Allowed";
+	statusMap[413] = "Content Too Large";
+	statusMap[500] = "Internal Server Error";
+	_body = "";
+	_isDone = false;
+	// std::cout << "Response constructor" << std::endl;
+}
+
+Response::Response(ServerBlock &serverBlock) : _logger(Logger("Response")), _ready(0), _serverBlock(&serverBlock)
 {
 	_statusCode = 200;
 	statusMap[200] = "OK";
@@ -45,7 +60,8 @@ std::string Response::toString()
 	if (!_isHeaderSent)
 	{
 		// Status line
-		responseStream << "HTTP/1.1 " << this->_statusCode << " " << Response::statusMap.at(this->_statusCode) << "\r\n";
+		std::string statusMsg = (Response::statusMap.find(this->_statusCode))->second;
+		responseStream << "HTTP/1.1 " << this->_statusCode << " " << statusMsg << "\r\n";
 
 		if (bodyLen > 0)
 		{
@@ -137,10 +153,23 @@ std::string readFile(const std::string &filePath)
 
 void Response::errorResponse(int statusCode, const std::string &errorMessage)
 {
-	this->_logger.error(errorMessage);
-	std::string errorFilePath = "public/custom_" + std::to_string(statusCode) + ".html";
-	std::string errorContent = readFile(errorFilePath);
+	std::string errorContent = "";
 
+	if (Response::statusMap.count(this->_statusCode) == 0)
+	{
+		this->_logger.error("Invalid status code: " + utl::toString(this->_statusCode));
+		statusCode = 500;
+	}
+
+	this->_logger.error(errorMessage);
+	IntStringMap errorPages = this->_serverBlock->getErrorPages();
+	if (errorPages.count(statusCode))
+	{
+		IntStringMap::iterator it = errorPages.find(statusCode);
+		std::string filePath = this->_serverBlock->getProjectDir() + this->_serverBlock->getRoot() + "/" +  it->second;
+		std::cout << "filePath: " << filePath << std::endl;
+		errorContent = readFile(filePath);
+	}
 	if (errorContent.empty())
 	{
 		// If the error file is not found or is empty, use a default message
