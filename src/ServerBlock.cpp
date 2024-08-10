@@ -37,7 +37,6 @@ ServerBlock::ServerBlock()
 			_projectDir += "/";
 #endif
 	}
-
 	// std::cout << "ServerBlock created" << std::endl;
 }
 
@@ -111,7 +110,7 @@ int ServerBlock::getListen() const
 	return listen;
 }
 
-IntStringMap ServerBlock::getErrorPages() const
+IntStringMap& ServerBlock::getErrorPages()
 {
 	return _errorPages;
 }

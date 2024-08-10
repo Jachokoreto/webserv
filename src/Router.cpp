@@ -6,7 +6,7 @@
 /*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:58:14 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 14:21:53 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 18:14:28 by jatan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,21 +137,12 @@ void Router::routeRequest(const Request &request, Response &response)
 		std::string fullPath = this->_projectDir + routeDetail->root + request.getResource();
 		for (requestHandlerVecIt it = this->_requestHandlers->begin(); it != this->_requestHandlers->end(); it++)
 		{
-			if ((*it)->checkIfHandle(request, *routeDetail, fullPath) == false)
-				continue;
-			if ((*it)->handleRequest(request, response, *routeDetail, fullPath))
-				return;
+			if ((*it)->checkIfHandle(request, *routeDetail, fullPath))
+			{
+				if ((*it)->handleRequest(request, response, *routeDetail, fullPath))
+					return;
+			}
 		}
-		// if (request.getMethod() == "GET")
-		// {
-		// 	_logger.log("sending default plain success");
-		// 	response.setStatusCode(200);
-		// 	response.addHeader("Content-Type", "text/html");
-		// 	// response.addHeader("Connection", "closed");
-		// 	response.setBody("<html>Welcome to the webserv, example.re homepage!</html>");
-		// 	return;
-		// }
-		// reach here if no handler found in the loop above
 		response.errorResponse(404, "no handler found");
 	}
 	else

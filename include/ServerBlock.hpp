@@ -49,7 +49,7 @@ public:
     int getPort() const;
     string getServerName() const;
     int getBodyLimit() const;
-    std::map<int, std::string> getErrorPages() const;
+    IntStringMap& getErrorPages();
     Router& getRouter();
     std::string getRoot() const;
     int getListen() const;

@@ -72,58 +72,54 @@ bool Connection::readData()
 			return false;
 		}
 
+		// append received data to buffer
 		_buffer += std::string(buf, bytes_read);
-		if (_request != NULL)
+
+		if (_request != NULL) // on going request
 		{
 			int res = _request->processBody(_buffer);
-			if (res == 1)
+			if (res == 1) // body completed
 			{
 				this->_logger.info("handle with body");
 				router->routeRequest(*_request, *_response);
 			}
-			if (res != -1)
+			else if (res != -1) // body not completed
 				_buffer.clear();
 		}
 		else
 		{
 			needle = _buffer.find("\r\n\r\n");
-			if (needle != std::string::npos)
+			if (needle != std::string::npos) // found end of header
 			{
 				try
 				{
-					std::cout << _buffer.substr(0, needle + 4) << std::endl;
+					std::cout << _buffer.substr(0, needle) << std::endl;
 					_request = new Request(_buffer.substr(0, needle + 4));
-					_response = new Response();
+					_response = new Response(*this->_serverBlock);
 
 					if ((_request->getHeader("Host") != _serverBlock->getHostname()) && (_request->getHeader("Host").find("localhost") == std::string::npos))
 					{
 						_response->errorResponse(404, "Hostname not recognized");
-						return true;
+						return true; 
 					}
+
 					int res = _request->checkIfHandleWithoutBody();
 					if (res == 1)
 					{
-						_request = new Request(_buffer.substr(0, needle + 4));
-						_response = new Response(*this->_serverBlock);
-
-						int res = _request->checkIfHandleWithoutBody();
-						if (res == 1)
+						this->_logger.log("handle without body");
+						router->routeRequest(*_request, *_response);
+					}
+					else if (res == -1)
+					{
+						_response->errorResponse(404, "Invalid body");
+					}
+					else if (res == 0)
+					{
+						_buffer = _buffer.substr(needle + 4);
+						if (_request->processBody(_buffer))
 						{
-							this->_logger.log("handle without body");
+							this->_logger.log("handle with body");
 							router->routeRequest(*_request, *_response);
-						}
-						else if (res == -1)
-						{
-							_response->errorResponse(404, "Invalid body");
-						}
-						else if (res == 0)
-						{
-							_buffer = _buffer.substr(needle + 4);
-							if (_request->processBody(_buffer))
-							{
-								this->_logger.log("handle with body");
-								router->routeRequest(*_request, *_response);
-							}
 						}
 					}
 				}
@@ -136,7 +132,6 @@ bool Connection::readData()
 				_buffer.clear();
 			}
 		}
-
 		return true;
 	}
 

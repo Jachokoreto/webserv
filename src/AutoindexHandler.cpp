@@ -48,6 +48,13 @@ bool AutoindexHandler::checkIfHandle(const Request &request, RouteDetails &route
 		_logger.log("Not a directory");
 		return false;
 	}
+	std::string uri = request.getUri();
+	bool uriMatchesRoute = (uri == routeDetails.route);
+	if (!uriMatchesRoute)
+	{
+		_logger.log("URI does not match route");
+		return false;
+	}
 	return true;
 }
 
