@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/23 16:06:07 by jatan             #+#    #+#             */
-/*   Updated: 2024/08/09 22:38:52 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 11:53:24 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,43 +158,103 @@ void Webserver::handleConnections()
 	for (std::vector<Connection *>::iterator it = _connections.begin(); it != _connections.end();)
 	{
 		int fd = (*it)->fd;
+		bool close_conn = false;
+
 		if (FD_ISSET(fd, &_readFds))
 		{
-			// this->_logger.log("Something from read fds...");
-			if ((*it)->readData() == false)
+			this->_logger.log("Something from read fds...");
+			if (!(*it)->readData())
 			{
-				_logger.info("close connection after read failed");
-				// close_conn = true;
-				close(fd);
-				FD_CLR(fd, &_readFds);
-				FD_CLR(fd, &_writeFds);
-				delete *it;
-				it = _connections.erase(it);
-				continue;
+				// If readData() returns false, it should be checked if it was due to an error or just no data left to read
+				if ((*it)->isConnectionClosed())
+				{
+					_logger.info("Close connection after read failed or no more data expected");
+					close_conn = true; // Mark for closing
+				}
+				else
+				{
+					_logger.info("No data to read or incomplete request, waiting for more data");
+				}
 			}
 		}
 
-		if (FD_ISSET(fd, &_writeFds))
+		if (!close_conn && FD_ISSET(fd, &_writeFds))
 		{
-			// this->_logger.log("Something from write fds...");
-
 			// handle write
 			if ((*it)->sendData())
 			{
-				// !BUG tester failed when ran the second time
-				// FATAL ERROR ON LAST TEST: read tcp 127.0.0.1:49868->127.0.0.1:80:
-				_logger.info("close connection after send");
-				delete *it;
-				it = _connections.erase(it);
-				close(fd);
-				FD_CLR(fd, &_readFds);
-				FD_CLR(fd, &_writeFds);
-				continue;
+				_logger.info("Close connection after send");
+				close_conn = true; // Mark for closing after sending data
 			}
 		}
-		++it;
+
+		if (close_conn)
+		{
+			// Close and erase only if marked for closing
+			close(fd);
+			FD_CLR(fd, &_readFds);
+			FD_CLR(fd, &_writeFds);
+			delete *it;
+			it = _connections.erase(it);
+		}
+		else
+		{
+			++it;
+		}
 	}
 }
+
+// void Webserver::handleConnections()
+// {
+// 	for (std::map<int, ServerBlock *>::iterator it = _serverBlocks.begin(); it != _serverBlocks.end(); it++)
+// 	{
+// 		if (FD_ISSET(it->first, &_readFds))
+// 		{
+// 			this->_logger.info("Receive read from server");
+// 			acceptNewConnection(it->first, it->second);
+// 		}
+// 	}
+
+// 	for (std::vector<Connection *>::iterator it = _connections.begin(); it != _connections.end();)
+// 	{
+// 		int fd = (*it)->fd;
+// 		if (FD_ISSET(fd, &_readFds))
+// 		{
+// 			this->_logger.log("Receive read from server");
+// 			if ((*it)->readData() == false)
+// 			{
+// 				_logger.info("close connection after read failed");
+// 				// close_conn = true;
+// 				close(fd);
+// 				FD_CLR(fd, &_readFds);
+// 				FD_CLR(fd, &_writeFds);
+// 				delete *it;
+// 				it = _connections.erase(it);
+// 				continue;
+// 			}
+// 		}
+
+// 		if (FD_ISSET(fd, &_writeFds))
+// 		{
+// 			// this->_logger.log("Something from write fds...");
+
+// 			// handle write
+// 			if ((*it)->sendData())
+// 			{
+// 				// !BUG tester failed when ran the second time
+// 				// FATAL ERROR ON LAST TEST: read tcp 127.0.0.1:49868->127.0.0.1:80:
+// 				_logger.info("close connection after send");
+// 				delete *it;
+// 				it = _connections.erase(it);
+// 				close(fd);
+// 				FD_CLR(fd, &_readFds);
+// 				FD_CLR(fd, &_writeFds);
+// 				continue;
+// 			}
+// 		}
+// 		++it;
+// 	}
+// }
 
 void Webserver::acceptNewConnection(int server_socket, ServerBlock *serverBlock)
 {

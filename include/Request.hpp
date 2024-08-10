@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 02:00:28 by chenlee           #+#    #+#             */
-/*   Updated: 2024/05/18 23:28:31 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 12:28:02 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <map>
 #include <exception>
 #include <unistd.h>
+#include <cstdlib>
 
 #include "HttpMessage.hpp"
 #include "Utility.hpp"
@@ -34,7 +35,6 @@ private:
 	Logger _logger;
 	size_t chunkSizeRemaining; // Track remaining chunk size
 	std::string _tmp;
-
 
 public:
 	Request();
@@ -62,6 +62,7 @@ public:
 	const std::string getResource() const;
 
 	int processBody(const std::string &buffer);
+	int handleChunkedTransfer(const std::string &buffer);
 	int checkIfHandleWithoutBody(void);
 };
 

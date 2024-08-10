@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:58:14 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 00:21:07 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 11:50:56 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ void Router::routeRequest(const Request &request, Response &response)
 	RouteDetails *routeDetail = getRouteDetails(request.getUri(), this->_routeTable);
 	if (routeDetail)
 	{
-		this->_logger.log("Handling route detail: " + routeDetail->route);
+		// this->_logger.log("Handling route detail: " + routeDetail->route);
 		if (checkAllowedMethods(request.getMethod(), routeDetail->allowedMethods) == false)
 		{
 			response.errorResponse(405, "Method not allowed");
@@ -161,6 +161,7 @@ void Router::routeRequest(const Request &request, Response &response)
 		std::string fullPath = this->_projectDir + routeDetail->root + request.getResource();
 		for (requestHandlerVecIt it = this->_requestHandlers->begin(); it != this->_requestHandlers->end(); it++)
 		{
+
 			if ((*it)->checkIfHandle(request, *routeDetail, fullPath) == false)
 				continue;
 			if ((*it)->handleRequest(request, response, *routeDetail, fullPath))

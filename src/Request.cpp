@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 23:19:09 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/09 23:02:19 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 13:19:02 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,85 +162,133 @@ Request::Request(Request const &src) : _logger(Logger("Request"))
 
 Request::~Request() {}
 
+int Request::handleChunkedTransfer(const std::string &buffer)
+{
+	while (!buffer.empty())
+	{
+		size_t posCRLF = buffer.find("\r\n");
+		if (posCRLF == std::string::npos)
+			break;
+
+		std::string sizeStr = buffer.substr(0, posCRLF);
+		unsigned long chunkSize = std::strtoul(sizeStr.c_str(), nullptr, 16);
+
+		// Advance past the CRLF
+		size_t startOfChunk = posCRLF + 2;
+		if (chunkSize == 0 && startOfChunk < buffer.size())
+		{
+			return startOfChunk;
+		}
+
+		size_t endOfChunk = startOfChunk + chunkSize + 2;
+		if (endOfChunk > buffer.size())
+			break;
+
+		// Process the chunk
+		std::string chunkData = buffer.substr(startOfChunk, chunkSize);
+		this->_body.append(chunkData);
+		return (endOfChunk);
+	}
+	return (0);
+}
+
 /**
  * read Buffer
  * if chunk size to read is 0,
  *  find \r\n to get the chunk size.
  */
-
 int Request::processBody(const std::string &buffer)
 {
-	size_t needle;
-	int len = 0;
-	std::string tmp;
-
-	size_t bufferIndex = 0;
-
-	usleep(1 * 5000);
-
-	if (this->getHeader("Transfer-Encoding").compare("chunked") == 0)
+	if (this->getHeader("Transfer-Encoding") == "chunked")
 	{
-		while (bufferIndex < buffer.size())
-		{
-			if (chunkSizeRemaining == 0)
-			{
-				needle = buffer.find("\r\n", bufferIndex);
-				if (needle == std::string::npos)
-				{
-					this->_logger.error("Missing CRLF");
-					return -1;
-				}
-				std::string sub = buffer.substr(bufferIndex, needle - bufferIndex);
-				chunkSizeRemaining = strtol(sub.c_str(), NULL, 16);
-
-				bufferIndex = needle + 2; // Skip past the \r\n
-
-				if (chunkSizeRemaining == 0)
-				{
-					if (sub == "0")
-					{
-						this->_logger.info("Chunked last 0 found! Body len: " + utl::toString(this->_body.length()));
-					}
-					else
-					{
-						throw "error";
-					}
-					return 1;
-				}
-			}
-
-			size_t chunkDataAvailable = std::min(chunkSizeRemaining, buffer.size() - bufferIndex);
-			this->_body.append(buffer.substr(bufferIndex, chunkDataAvailable));
-
-			std::cout << "\x1b[1A" << "\x1b[2K"; // Delete current line
-			std::cout << "current lenght: " << this->_body.length() << std::endl;
-			chunkSizeRemaining -= chunkDataAvailable;
-			bufferIndex += chunkDataAvailable;
-
-			if (chunkSizeRemaining == 0)
-			{
-				if (bufferIndex + 2 <= buffer.size() && buffer.substr(bufferIndex, 2) == "\r\n")
-				{
-					bufferIndex += 2; // Skip past the \r\n after the chunk
-				}
-				else
-				{
-					this->_logger.error("Invalid Chunked (Missing CRLF after chunk data)");
-					// std::cout << "buffer: " << buffer << std::endl;
-					return -1;
-				}
-			}
-		}
+		return (-1 * handleChunkedTransfer(buffer));
 	}
 	else
 	{
-		tmp = this->getHeader("Content-Length");
-		len = atoi(tmp.c_str());
-		this->_body.append(buffer, 0, len - this->_body.length());
-		if (this->_body.length() == (size_t)len)
-			return 1;
+		size_t expectedBodySize = atoi(this->getHeader("Content-Length").c_str());
+		if (expectedBodySize > 0 && buffer.length() >= expectedBodySize)
+		{
+			this->setBody(buffer.substr(0, expectedBodySize));
+			return (expectedBodySize);
+		}
+		else if (expectedBodySize == 0)
+		{
+			return (0);
+		}
 	}
-	// usleep(5000);
+	// size_t needle;
+	// int len = 0;
+	// std::string tmp;
+
+	// size_t bufferIndex = 0;
+
+	// usleep(1 * 5000);
+
+	// if (this->getHeader("Transfer-Encoding").compare("chunked") == 0)
+	// {
+	// 	while (bufferIndex < buffer.size())
+	// 	{
+	// 		if (chunkSizeRemaining == 0)
+	// 		{
+	// 			needle = buffer.find("\r\n", bufferIndex);
+	// 			if (needle == std::string::npos)
+	// 			{
+	// 				this->_logger.error("Missing CRLF");
+	// 				return -1;
+	// 			}
+	// 			std::string sub = buffer.substr(bufferIndex, needle - bufferIndex);
+	// 			chunkSizeRemaining = strtol(sub.c_str(), NULL, 16);
+
+	// 			bufferIndex = needle + 2; // Skip past the \r\n
+
+	// 			if (chunkSizeRemaining == 0)
+	// 			{
+	// 				if (sub == "0")
+	// 				{
+	// 					this->_logger.info("Chunked last 0 found! Body len: " + utl::toString(this->_body.length()));
+	// 				}
+	// 				else
+	// 				{
+	// 					throw "error";
+	// 				}
+	// 				return 1;
+	// 			}
+	// 		}
+
+	// 		size_t chunkDataAvailable = std::min(chunkSizeRemaining, buffer.size() - bufferIndex);
+	// 		this->_body.append(buffer.substr(bufferIndex, chunkDataAvailable));
+
+	// 		std::cout << "\x1b[1A" << "\x1b[2K"; // Delete current line
+	// 		std::cout << "current lenght: " << this->_body.length() << std::endl;
+	// 		chunkSizeRemaining -= chunkDataAvailable;
+	// 		bufferIndex += chunkDataAvailable;
+
+	// 		if (chunkSizeRemaining == 0)
+	// 		{
+	// 			if (bufferIndex + 2 <= buffer.size() && buffer.substr(bufferIndex, 2) == "\r\n")
+	// 			{
+	// 				bufferIndex += 2; // Skip past the \r\n after the chunk
+	// 			}
+	// 			else
+	// 			{
+	// 				this->_logger.error("Invalid Chunked (Missing CRLF after chunk data)");
+	// 				// std::cout << "buffer: " << buffer << std::endl;
+	// 				return -1;
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// else
+	// {
+	// 	tmp = this->getHeader("Content-Length");
+	// 	len = atoi(tmp.c_str());
+	// 	this->_body.append(buffer, 0, len - this->_body.length());
+	// 	std::cout << this->_body.length() << " " << len << std::endl;
+	// 	if (this->_body.length() == (size_t)len)
+	// 		return 1;
+	// }
+	// // usleep(5000);
+
 	return 0;
 }
 

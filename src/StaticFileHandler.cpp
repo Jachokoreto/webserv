@@ -6,7 +6,7 @@
 /*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 02:58:26 by chenlee           #+#    #+#             */
-/*   Updated: 2024/08/10 03:20:55 by chenlee          ###   ########.fr       */
+/*   Updated: 2024/08/10 03:36:10 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ std::string getCurrentTime()
 bool handlePostRequest(const Request &request, Response &response, const RouteDetails &RouteDetails, const std::string &fullPath)
 {
 	(void)RouteDetails;
+	std::cout << "HANDLING POST" << std::endl;
 	std::ofstream file(fullPath.c_str(), std::ios::out | std::ios::binary);
 	if (!file)
 		response.errorResponse(500, "Failed to open file.");

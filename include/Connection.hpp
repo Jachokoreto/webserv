@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jatan <jatan@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: chenlee <chenlee@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 19:45:34 by jatan             #+#    #+#             */
-/*   Updated: 2024/05/18 23:57:13 by jatan            ###   ########.fr       */
+/*   Updated: 2024/08/10 11:32:49 by chenlee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,18 +46,21 @@ public:
 	bool readData(void);
 	bool sendData(void);
 	bool hasResponse(void);
+	bool shouldKeepAlive(void);
+	bool isConnectionClosed(void);
 
 private:
 	// fd_set* _master;
 	// std::string _requestString;
 	// std::string _request;
 	// std::string _response;
+	ServerBlock *_serverBlock;
 	Request *_request;
 	Response *_response;
-	ServerBlock *_serverBlock;
-	static int _connectionCount;
 	Logger _logger;
 	std::string _buffer;
+	ssize_t _lastReadStatus;
+	static int _connectionCount;
 	// int _index;
 };
 

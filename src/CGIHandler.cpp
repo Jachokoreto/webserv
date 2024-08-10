@@ -160,7 +160,7 @@ bool CGIHandler::handleRequest(const Request &request, Response &response, Route
 		std::string responseBody;
 		char buffer[4096];
 		ssize_t bytes_read;
-		this->_logger.log("start read...");
+		// this->_logger.log("start read...");
 		while ((bytes_read = read(p[0], buffer, sizeof(buffer) - 1)) > 0)
 		{
 			buffer[bytes_read] = '\0';

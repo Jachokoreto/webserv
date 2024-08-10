@@ -83,7 +83,6 @@ bool AutoindexHandler::handleRequest(const Request &req, Response &res, RouteDet
 		std::string name = entry->d_name;
 		// std::string link = (utl::isDirectory(path + "/" + name)) ? name + "/" : name;
 		std::string link = req.getRoute() + "/" + name;
-		std::cout << "link: " << link << std::endl;
 		listingHtml += "<li><a href='" + link + "'>" + name + "</a></li>\n";
 	}
 	closedir(dir);
